@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Natillera LA FORTUNA — Vibras Positivas HM</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1419;
+    --bg-soft:#1a2128;
+    --panel:#ffffff;
+    --ink:#0f1419;
+    --ink-soft:#4a5560;
+    --line:#e6e4dd;
+    --gold:#c8a55b;
+    --gold-deep:#a88640;
+    --green:#2d7a4a;
+    --green-soft:#e8f3ec;
+    --red:#b23b3b;
+    --red-soft:#fbeaea;
+    --amber:#d08c1a;
+    --amber-soft:#fbf1dc;
+    --wa:#25d366;
+    --shadow: 0 1px 2px rgba(15,20,25,.04), 0 8px 24px rgba(15,20,25,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Manrope',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #f8f3e4 0%, transparent 60%),
+      radial-gradient(1000px 500px at 110% 10%, #eef3ee 0%, transparent 60%),
+      #faf8f2;
+    color:var(--ink);
+    min-height:100vh;
+    padding:24px 16px 60px;
+  }
+  .app{max-width:1240px;margin:0 auto}
+
+  /* HEADER */
+  header.hero{
+    background:linear-gradient(135deg, #14202a 0%, #0f1419 55%, #1c2a1f 100%);
+    color:#f5efdf;
+    border-radius:22px;
+    padding:28px 32px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    border:1px solid rgba(200,165,91,.2);
+  }
+  header.hero::before{
+    content:"";
+    position:absolute;inset:0;
+    background-image:
+      radial-gradient(circle at 85% 20%, rgba(200,165,91,.25), transparent 40%),
+      radial-gradient(circle at 15% 110%, rgba(45,122,74,.18), transparent 45%);
+    pointer-events:none;
+  }
+  .brand{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+  .coin{
+    width:52px;height:52px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #f2d98a 0%, var(--gold) 45%, var(--gold-deep) 100%);
+    display:grid;place-items:center;
+    font-family:'Fraunces',serif;font-weight:900;font-size:22px;color:#2b1d00;
+    box-shadow:inset 0 0 0 2px #e7c473, 0 6px 14px rgba(200,165,91,.35);
+  }
+  .brand h1{
+    font-family:'Fraunces',serif;font-weight:700;
+    margin:0;letter-spacing:-.5px;font-size:clamp(22px,3.2vw,30px);
+    color:#f5efdf;
+  }
+  .brand h1 em{color:var(--gold);font-style:normal;font-weight:900}
+  .brand p{margin:2px 0 0;font-size:12.5px;color:#c9c1a8;letter-spacing:.3px}
+  .clock{
+    position:relative;z-index:1;
+    margin-top:16px;
+    font-size:13px;color:#d9d0b2;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+  }
+  .clock .pill{
+    background:rgba(245,239,223,.08);
+    border:1px solid rgba(245,239,223,.15);
+    padding:6px 12px;border-radius:999px;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* KPIs */
+  .kpi-row{
+    display:grid;gap:12px;margin-top:18px;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  }
+  .kpi{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:14px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .kpi::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gold);
+  }
+  .kpi.green::before{background:var(--green)}
+  .kpi.red::before{background:var(--red)}
+  .kpi.ink::before{background:var(--ink)}
+  .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-soft);font-weight:700}
+  .kpi .val{font-family:'Fraunces',serif;font-weight:700;font-size:24px;margin-top:4px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .kpi .sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px}
+
+  .saldo-big{
+    margin-top:18px;
+    background:linear-gradient(135deg,#fefaea 0%,#fff6dd 100%);
+    border:1px solid #e9d8a0;border-radius:16px;
+    padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    box-shadow:var(--shadow);
+  }
+  .saldo-big .lbl{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:#7a5e1a;font-weight:800}
+  .saldo-big .val{font-family:'Fraunces',serif;font-weight:900;font-size:30px;color:#2b1d00;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .saldo-big .note{font-size:12px;color:#7a5e1a}
+
+  /* TABS */
+  nav.tabs{
+    display:flex;gap:6px;margin:22px 0 18px;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px;
+    box-shadow:var(--shadow);overflow-x:auto;scrollbar-width:thin;
+  }
+  nav.tabs button{
+    border:0;background:transparent;padding:10px 14px;border-radius:10px;
+    font-family:'Manrope',sans-serif;font-weight:700;font-size:13px;color:var(--ink-soft);cursor:pointer;
+    white-space:nowrap;transition:all .18s ease;
+  }
+  nav.tabs button:hover{background:#f4f1e7;color:var(--ink)}
+  nav.tabs button.active{background:var(--ink);color:#f5efdf}
+  nav.tabs button.active.gold{background:var(--gold);color:#2b1d00}
+  nav.tabs button.active.green{background:var(--green);color:#fff}
+
+  /* SECTIONS */
+  section.page{display:none;animation:fade .25s ease}
+  section.page.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  h2.title{
+    font-family:'Fraunces',serif;font-weight:700;letter-spacing:-.4px;
+    margin:0 0 14px;font-size:22px;display:flex;align-items:center;gap:10px;
+  }
+  h2.title::before{
+    content:"";width:10px;height:10px;border-radius:2px;background:var(--gold);transform:rotate(45deg);
+  }
+
+  /* FORM */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+  form.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  form.grid .full{grid-column:1/-1}
+  label{font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:4px}
+  input,select,textarea{
+    width:100%;border:1px solid var(--line);background:#fff;border-radius:10px;
+    padding:11px 12px;font:inherit;color:var(--ink);outline:none;transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,165,91,.18)}
+
+  button.btn{
+    border:0;border-radius:10px;padding:12px 16px;font-weight:700;font-size:13.5px;letter-spacing:.3px;
+    cursor:pointer;transition:transform .08s, filter .15s;
+    font-family:'Manrope',sans-serif;
+  }
+  button.btn:hover{filter:brightness(1.05)}
+  button.btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--ink);color:#f5efdf}
+  .btn-gold{background:var(--gold);color:#2b1d00}
+  .btn-green{background:var(--green);color:#fff}
+  .btn-wa{background:var(--wa);color:#073b17}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-ghost{background:#f4f1e7;color:var(--ink)}
+  .btn-mini{padding:6px 10px;font-size:11.5px;border-radius:8px}
+
+  /* TABLE */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  thead th{
+    background:#0f1419;color:#f5efdf;text-align:left;padding:11px 12px;font-weight:700;
+    font-size:11.5px;text-transform:uppercase;letter-spacing:.9px;
+  }
+  tbody td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
+  tbody tr:hover{background:#faf8f2}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  td.actions{white-space:nowrap;display:flex;gap:4px;flex-wrap:wrap}
+
+  .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.3px}
+  .b-green{background:var(--green-soft);color:var(--green)}
+  .b-red{background:var(--red-soft);color:var(--red)}
+  .b-amber{background:var(--amber-soft);color:var(--amber)}
+  .b-gray{background:#eee8d7;color:#7a5e1a}
+
+  .empty{padding:24px;text-align:center;color:var(--ink-soft);font-size:13px;font-style:italic}
+
+  /* TOOLBAR */
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+
+  /* MODAL */
+  .modal-bg{
+    position:fixed;inset:0;background:rgba(15,20,25,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;
+    backdrop-filter:blur(2px);
+  }
+  .modal-bg.open{display:flex}
+  .modal{
+    background:#fff;border-radius:18px;max-width:520px;width:100%;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.3);
+    border:1px solid var(--line);
+  }
+  .modal h3{font-family:'Fraunces',serif;margin:0 0 12px;font-size:20px}
+  .modal .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+
+  /* TOAST */
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#f5efdf;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .3s ease;z-index:200;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.err{background:var(--red)}
+  .toast.ok{background:var(--green)}
+
+  footer.sig{
+    text-align:center;margin-top:30px;padding:16px;font-size:12px;color:var(--ink-soft);
+    border-top:1px solid var(--line);letter-spacing:.3px;
+  }
+  footer.sig strong{color:var(--gold-deep);font-family:'Fraunces',serif;font-weight:700}
+
+  @media (max-width:640px){
+    form.grid{grid-template-columns:1fr}
+    form.grid .full{grid-column:1}
+    header.hero{padding:20px}
+    .brand h1{font-size:22px}
+    .saldo-big .val{font-size:24px}
+  }
+
+  /* PRINT (recibo) */
+  @media print{
+    body *{visibility:hidden}
+    #recibo-print,#recibo-print *{visibility:visible}
+    #recibo-print{position:absolute;inset:0;padding:30px;background:#fff}
+  }
+  #recibo-print{
+    background:#fff;padding:24px;border:2px solid #0f1419;border-radius:0;font-family:'Manrope',sans-serif;
+  }
+  #recibo-print h2{font-family:'Fraunces',serif;margin:0 0 4px;border-bottom:3px double #c8a55b;padding-bottom:10px}
+  #recibo-print .r-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ccc;font-size:14px}
+  #recibo-print .r-row b{color:#0f1419}
+  #recibo-print .r-foot{margin-top:24px;text-align:center;font-size:12px;color:#666;font-style:italic}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="hero">
+    <div class="brand">
+      <div class="coin">LF</div>
+      <div>
+        <h1>Natillera <em>La Fortuna</em></h1>
+        <p>Gestión integral de aportes, préstamos y actividades</p>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="pill" id="reloj">—</span>
+      <span class="pill" id="ano-liq">Año en curso: —</span>
+    </div>
+  </header>
+
+  <!-- SALDO GRANDE -->
+  <div class="saldo-big">
+    <div>
+      <div class="lbl">Saldo real en caja</div>
+      <div class="note">Aportes + Abonos + Ingresos de actividades − (Gastos + Capital prestado pendiente)</div>
+    </div>
+    <div class="val" id="saldo-caja">$0</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi green"><div class="lbl">Aportes acumulados</div><div class="val" id="st-aportes">$0</div><div class="sub" id="sub-aportes">0 movimientos</div></div>
+    <div class="kpi"><div class="lbl">Intereses causados</div><div class="val" id="st-interes">$0</div><div class="sub" id="sub-interes">De abonos recibidos</div></div>
+    <div class="kpi"><div class="lbl">Utilidad actividades</div><div class="val" id="st-actividades">$0</div><div class="sub" id="sub-act">Ingresos − Gastos</div></div>
+    <div class="kpi ink"><div class="lbl">Utilidad total</div><div class="val" id="st-utilidad">$0</div><div class="sub" id="sub-util">A repartir partes iguales</div></div>
+  </div>
+
+  <!-- TABS -->
+  <nav class="tabs" id="tabs">
+    <button data-tab="sec-socios" class="active">👥 Socios</button>
+    <button data-tab="sec-aportes">💵 Aportes</button>
+    <button data-tab="sec-prestamos">🏦 Préstamos</button>
+    <button data-tab="sec-abonos">📥 Abonos</button>
+    <button data-tab="sec-eventos">🎉 Actividades</button>
+    <button data-tab="sec-liquidacion">🧮 Liquidación</button>
+    <button data-tab="sec-config">⚙️ Datos</button>
+  </nav>
+
+  <!-- SOCIOS -->
+  <section class="page active" id="sec-socios">
+    <h2 class="title">Asociados de la natillera</h2>
+    <div class="card">
+      <form class="grid" id="form-socio">
+        <div><label>Nombre completo</label><input type="text" id="s-nombre" required></div>
+        <div><label>Cédula</label><input type="text" id="s-cedula" required></div>
+        <div class="full"><label>WhatsApp (10 dígitos, sin +57)</label><input type="tel" id="s-tel" pattern="[0-9]{10}" maxlength="10" required placeholder="3001234567"></div>
+        <button type="submit" class="btn btn-primary full">Guardar socio</button>
+      </form>
+    </div>
+    <div class="table-wrap">
+      <table id="tabla-socios">
+        <thead><tr><th>Nombre</th><th>Cédula</th><th>WhatsApp</th><th>Aportes</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- APORTES -->
+  <section class="page" id="sec-aportes">
+    <h2 class="title">Registro de aportes</h2>
+    <div class="card">
+      <form class="grid" id="form-aporte">
+        <div class="full"><label>Socio</label><select id="a-socio" required></select></div>
+        <div><label>Valor del aporte</label><input type="number" id="a-monto" min="1" step="any" required></div>
+        <div><label>Fecha</label><input type="date" id="a-fecha" required></div>
+        <div class="full" style="font-size:12px;color:var(--ink-soft);background:var(--green-soft);padding:10px;border-radius:8px">
+          ✓ Al registrar se abrirá WhatsApp del socio con el recibo de constancia.
+        </div>
+        <button type="submit" class="btn btn-wa full">📲 Registrar y enviar constancia</button>
+      </form>
+    </div>
+    <div class="table-wrap">
+      <table id="tabla-aportes">
+        <thead><tr><th>Fecha</th><th>Socio</th><th class="num">Valor</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PRÉSTAMOS -->
+  <section class="page" id="sec-prestamos">
+    <h2 class="title">Préstamos (1 a 4 cuotas)</h2>
+    <div class="card">
+      <form class="grid" id="form-prestamo">
+        <div><label>Tipo de deudor</label><select id="p-tipo" required><option value="socio">Asociado (5% mensual)</option><option value="tercero">Externo (10% mensual)</option></select></div>
+        <div><label>Deudor — nombre completo</label><input type="text" id="p-nombre" required></div>
+        <div><label>WhatsApp del deudor (10 dígitos)</label><input type="tel" id="p-tel" pattern="[0-9]{10}" maxlength="10" required></div>
+        <div><label>Capital prestado</label><input type="number" id="p-monto" min="1" step="any" required></div>
+        <div><label>Número de cuotas</label><select id="p-cuotas" required>
+          <option value="1">1 mes</option><option value="2">2 meses</option><option value="3">3 meses</option><option value="4">4 meses</option>
+        </select></div>
+        <div><label>Codeudor / fiador</label><input type="text" id="p-codeudor"></div>
+        <div><label>Fecha de entrega</label><input type="date" id="p-fecha" required></div>
+        <button type="submit" class="btn btn-primary full">Crear préstamo</button>
+      </form>
+    </div>
+    <div class="table-wrap">
+      <table id="tabla-prestamos">
+        <thead><tr><th>Deudor</th><th class="num">Capital</th><th class="num">Total a pagar</th><th>Cuotas</th><th class="num">V. cuota</th><th class="num">Saldo</th><th>Estado</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ABONOS -->
+  <section class="page" id="sec-abonos">
+    <h2 class="title">Recaudo de cuotas y abonos</h2>
+    <div class="card">
+      <form class="grid" id="form-abono">
+        <div class="full"><label>Préstamo</label><select id="ab-prestamo" required></select></div>
+        <div><label>Valor del abono</label><input type="number" id="ab-monto" min="1" step="any" required></div>
+        <div><label>Fecha</label><input type="date" id="ab-fecha" required></div>
+        <div class="full" style="font-size:12px;color:var(--ink-soft);background:var(--green-soft);padding:10px;border-radius:8px">
+          ✓ Se enviará constancia por WhatsApp al deudor con el saldo actualizado.
+        </div>
+        <button type="submit" class="btn btn-wa full">📲 Registrar y enviar constancia</button>
+      </form>
+    </div>
+    <div class="table-wrap">
+      <table id="tabla-abonos">
+        <thead><tr><th>Fecha</th><th>Deudor</th><th class="num">Abono</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ACTIVIDADES -->
+  <section class="page" id="sec-eventos">
+    <h2 class="title">Actividades (ventas, rifas, eventos)</h2>
+    <div class="card">
+      <form class="grid" id="form-actividad">
+        <div class="full"><label>Nombre de la actividad</label><input type="text" id="act-nombre" required placeholder="Ej: Venta de empanadas diciembre"></div>
+        <div><label>Gasto total</label><input type="number" id="act-costo" min="0" step="any" required></div>
+        <div><label>Ingreso total</label><input type="number" id="act-venta" min="0" step="any" required></div>
+        <div class="full"><label>Fecha</label><input type="date" id="act-fecha" required></div>
+        <button type="submit" class="btn btn-primary full">Guardar actividad</button>
+      </form>
+    </div>
+    <div class="table-wrap">
+      <table id="tabla-actividades">
+        <thead><tr><th>Fecha</th><th>Actividad</th><th class="num">Gasto</th><th class="num">Ingreso</th><th class="num">Utilidad</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- LIQUIDACIÓN -->
+  <section class="page" id="sec-liquidacion">
+    <h2 class="title">Liquidación de fin de año</h2>
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="exportarExcelTotal()">📊 Exportar Excel completo</button>
+      <button class="btn btn-green" onclick="enviarReporteWhatsApp()">📱 Reporte mensual al admin</button>
+      <button class="btn btn-ghost" onclick="window.print()">🖨️ Imprimir liquidación</button>
+    </div>
+    <div class="card" style="background:#fbf7e8;border-color:#e9d8a0">
+      <p style="margin:0;font-size:13.5px">
+        <strong>Método de reparto:</strong> Utilidad total (intereses + utilidad de actividades) ÷ número de socios.
+        Cada socio recibe sus aportes + una parte igual de la utilidad. Los préstamos pendientes no se reparten hasta ser recaudados.
+      </p>
+    </div>
+    <div class="table-wrap">
+      <table id="tabla-liq">
+        <thead><tr><th>Socio</th><th class="num">Aportes</th><th class="num">Utilidad equitativa</th><th class="num">Total a recibir</th></tr></thead>
+        <tbody></tbody>
+        <tfoot id="liq-foot"></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <!-- CONFIG / DATOS -->
+  <section class="page" id="sec-config">
+    <h2 class="title">Respaldo y configuración</h2>
+    <div class="card">
+      <h3 style="margin:0 0 8px;font-family:'Fraunces',serif">WhatsApp de administración</h3>
+      <p style="margin:0 0 10px;font-size:13px;color:var(--ink-soft)">Número al que llegan los reportes mensuales y copias de los recibos.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="tel" id="admin-wa" style="flex:1;min-width:180px" pattern="[0-9]{10}" maxlength="10" placeholder="3001234567">
+        <button class="btn btn-primary" onclick="guardarAdminWA()">Guardar</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 8px;font-family:'Fraunces',serif">Copia de seguridad</h3>
+      <p style="margin:0 0 12px;font-size:13px;color:var(--ink-soft)">
+        Descarga un archivo JSON con <strong>toda la información</strong> (socios, aportes, préstamos, abonos y actividades).
+        Guárdalo en un lugar seguro (email, Drive, WhatsApp). Si algún día el navegador se borra, lo puedes restaurar desde aquí.
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-green" onclick="descargarBackup()">⬇️ Descargar respaldo JSON</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('file-restore').click()">⬆️ Restaurar desde JSON</button>
+        <input type="file" id="file-restore" accept=".json" style="display:none" onchange="restaurarBackup(this)">
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 8px;font-family:'Fraunces',serif;color:var(--red)">Zona peligrosa</h3>
+      <p style="margin:0 0 12px;font-size:13px;color:var(--ink-soft)">Eliminar todos los datos e iniciar de cero. <strong>Hazlo sólo después de terminar el año</strong> y de haber descargado el respaldo.</p>
+      <button class="btn btn-red" onclick="borrarTodo()">🗑️ Borrar todos los datos</button>
+    </div>
+  </section>
+
+  <footer class="sig">
+    Desarrollada por <strong>Vibras Positivas HM</strong> — Derechos de Autor Reservados
+  </footer>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal-box"></div>
+</div>
+
+<!-- RECIBO PRINT -->
+<div id="recibo-print" style="display:none"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   NATILLERA LA FORTUNA - v12
+   Desarrollada por Vibras Positivas HM
+   Zona horaria Colombia (UTC-5) | LocalStorage key: laFortuna_v12
+============================================================ */
+
+const STORAGE_KEY = 'laFortuna_v12';
+const TZ_OFFSET = -5; // Colombia UTC-5
+
+let db = cargarDB();
+
+function cargarDB(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return esquemaVacio();
+    const parsed = JSON.parse(raw);
+    // defensa ante datos viejos
+    return Object.assign(esquemaVacio(), parsed);
+  }catch(e){ return esquemaVacio(); }
+}
+function esquemaVacio(){
+  return { socios:[], aportes:[], prestamos:[], abonos:[], actividades:[], adminWA:'', version:12 };
+}
+function guardar(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  render();
+}
+
+/* ---------- utilidades ---------- */
+function pesos(n){
+  n = Math.round(Number(n)||0);
+  return '$' + n.toLocaleString('es-CO');
+}
+function hoyColombia(){
+  const now = new Date();
+  // Ajuste grosso: usar toLocaleString con timezone real
+  const opts = {timeZone:'America/Bogota', year:'numeric', month:'2-digit', day:'2-digit'};
+  const parts = new Intl.DateTimeFormat('en-CA', opts).format(now); // yyyy-mm-dd
+  return parts;
+}
+function fechaBonita(iso){
+  if(!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function addMonths(isoDate, months){
+  const [y,m,d] = isoDate.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m-1+months, d));
+  return dt.toISOString().slice(0,10);
+}
+function diffDays(isoA, isoB){
+  const a = new Date(isoA+'T00:00:00Z').getTime();
+  const b = new Date(isoB+'T00:00:00Z').getTime();
+  return Math.round((b-a)/86400000);
+}
+
+/* ---------- reloj ---------- */
+function tickReloj(){
+  const now = new Date();
+  const txt = new Intl.DateTimeFormat('es-CO',{
+    timeZone:'America/Bogota',dateStyle:'full',timeStyle:'medium'
+  }).format(now);
+  document.getElementById('reloj').textContent = txt;
+  document.getElementById('ano-liq').textContent = 'Liquidación: diciembre ' + new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',year:'numeric'});
+}
+setInterval(tickReloj, 1000); tickReloj();
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('#tabs button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById(b.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------- toast & modal ---------- */
+let toastT;
+function toast(msg, type='ok'){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show '+type;
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function modal(html){
+  const box = document.getElementById('modal-box');
+  box.innerHTML = html;
+  document.getElementById('modal-bg').classList.add('open');
+}
+function modalClose(){ document.getElementById('modal-bg').classList.remove('open'); }
+document.getElementById('modal-bg').addEventListener('click', e=>{
+  if(e.target.id==='modal-bg') modalClose();
+});
+function confirmar(titulo, mensaje, onOk, okTxt='Confirmar', okClass='btn-red'){
+  modal(`
+    <h3>${titulo}</h3>
+    <p style="font-size:14px;color:var(--ink-soft);margin:0">${mensaje}</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
+      <button class="btn ${okClass}" id="btn-ok-modal">${okTxt}</button>
+    </div>`);
+  document.getElementById('btn-ok-modal').onclick = ()=>{ modalClose(); onOk(); };
+}
+
+/* ---------- FORMS ---------- */
+
+// Fechas por defecto = hoy Colombia
+['a-fecha','p-fecha','ab-fecha','act-fecha'].forEach(id=>{
+  document.getElementById(id).value = hoyColombia();
+});
+
+// SOCIO
+document.getElementById('form-socio').onsubmit = e=>{
+  e.preventDefault();
+  const nombre = document.getElementById('s-nombre').value.trim();
+  const cedula = document.getElementById('s-cedula').value.trim();
+  const tel = document.getElementById('s-tel').value.trim();
+  if(!/^\d{10}$/.test(tel)){ toast('WhatsApp debe tener 10 dígitos','err'); return; }
+  if(db.socios.some(s=>s.cedula===cedula)){ toast('Ya existe un socio con esa cédula','err'); return; }
+  db.socios.push({id:Date.now(), nombre, cedula, tel});
+  toast('Socio registrado');
+  guardar(); e.target.reset();
+};
+
+// APORTE
+document.getElementById('form-aporte').onsubmit = e=>{
+  e.preventDefault();
+  const sId = document.getElementById('a-socio').value;
+  const monto = parseFloat(document.getElementById('a-monto').value);
+  const fecha = document.getElementById('a-fecha').value;
+  const socio = db.socios.find(s=>s.id==sId);
+  if(!socio){ toast('Debes crear un socio primero','err'); return; }
+  if(!(monto>0)){ toast('Valor inválido','err'); return; }
+  const aporte = {id:Date.now(), socioId:Number(sId), monto, fecha};
+  db.aportes.push(aporte);
+  guardar();
+  // WhatsApp al socio
+  const msg = `*LA FORTUNA — RECIBO DE APORTE*%0A`+
+              `%0A📝 Tipo: Aporte%0A`+
+              `🤝 Socio: ${socio.nombre}%0A`+
+              `💰 Valor: ${pesos(monto)}%0A`+
+              `📅 Fecha: ${fechaBonita(fecha)}%0A`+
+              `%0A_Constancia generada por Natillera La Fortuna_`;
+  window.open(`https://wa.me/57${socio.tel}?text=${msg}`,'_blank');
+  toast('Aporte registrado y constancia enviada');
+  e.target.reset();
+  document.getElementById('a-fecha').value = hoyColombia();
+};
+
+// PRÉSTAMO
+document.getElementById('form-prestamo').onsubmit = e=>{
+  e.preventDefault();
+  const cap = parseFloat(document.getElementById('p-monto').value);
+  const meses = parseInt(document.getElementById('p-cuotas').value);
+  const tipo = document.getElementById('p-tipo').value;
+  const tel = document.getElementById('p-tel').value.trim();
+  if(!/^\d{10}$/.test(tel)){ toast('WhatsApp inválido','err'); return; }
+  if(!(cap>0)){ toast('Capital inválido','err'); return; }
+  const tasa = tipo==='socio' ? 0.05 : 0.10;
+  const intTotal = cap * tasa * meses;
+  const total = cap + intTotal;
+  const fecha = document.getElementById('p-fecha').value;
+  const prestamo = {
+    id:Date.now(),
+    deudor:document.getElementById('p-nombre').value.trim(),
+    tel, tipo,
+    capital:cap, tasa, meses,
+    interesTotal:intTotal, totalPagar:total,
+    valorCuota: total/meses,
+    saldo: total,
+    fecha,
+    codeudor:document.getElementById('p-codeudor').value.trim(),
+  };
+  db.prestamos.push(prestamo);
+  guardar();
+  toast('Préstamo creado');
+  e.target.reset();
+  document.getElementById('p-fecha').value = hoyColombia();
+};
+
+// ABONO
+document.getElementById('form-abono').onsubmit = e=>{
+  e.preventDefault();
+  const pId = document.getElementById('ab-prestamo').value;
+  const monto = parseFloat(document.getElementById('ab-monto').value);
+  const fecha = document.getElementById('ab-fecha').value;
+  const p = db.prestamos.find(x=>x.id==pId);
+  if(!p){ toast('Selecciona un préstamo','err'); return; }
+  if(!(monto>0)){ toast('Valor inválido','err'); return; }
+  if(monto > p.saldo + 0.5){
+    confirmar('Monto mayor al saldo',
+      `El saldo actual es ${pesos(p.saldo)} y estás abonando ${pesos(monto)}. ¿Continúas de todas formas?`,
+      ()=>procesarAbono(p, monto, fecha), 'Sí, registrar','btn-gold');
+    return;
+  }
+  procesarAbono(p, monto, fecha);
+};
+function procesarAbono(p, monto, fecha){
+  db.abonos.push({id:Date.now(), prestamoId:p.id, deudor:p.deudor, monto, fecha});
+  p.saldo = Math.max(0, p.saldo - monto);
+  guardar();
+  // WA al deudor
+  if(p.tel){
+    const estado = p.saldo<=0 ? '✅ Préstamo *CANCELADO*' : `📉 Saldo: ${pesos(p.saldo)}`;
+    const msg = `*LA FORTUNA — RECIBO DE PAGO*%0A`+
+                `%0A👤 Deudor: ${p.deudor}%0A`+
+                `💸 Abono: ${pesos(monto)}%0A`+
+                `${encodeURIComponent(estado)}%0A`+
+                `📅 Fecha: ${fechaBonita(fecha)}%0A`+
+                `%0A_Constancia generada por Natillera La Fortuna_`;
+    window.open(`https://wa.me/57${p.tel}?text=${msg}`,'_blank');
+  }
+  // Copia al admin
+  if(db.adminWA){
+    const msgA = `*LA FORTUNA — Abono recibido*%0A`+
+                 `De: ${p.deudor}%0A`+
+                 `Valor: ${pesos(monto)}%0A`+
+                 `Saldo: ${pesos(p.saldo)}%0A`+
+                 `Fecha: ${fechaBonita(fecha)}`;
+    setTimeout(()=>window.open(`https://wa.me/57${db.adminWA}?text=${msgA}`,'_blank'), 400);
+  }
+  toast('Abono registrado');
+  document.getElementById('form-abono').reset();
+  document.getElementById('ab-fecha').value = hoyColombia();
+}
+
+// ACTIVIDAD
+document.getElementById('form-actividad').onsubmit = e=>{
+  e.preventDefault();
+  const g = parseFloat(document.getElementById('act-costo').value);
+  const v = parseFloat(document.getElementById('act-venta').value);
+  if(g<0 || v<0){ toast('Valores inválidos','err'); return; }
+  db.actividades.push({
+    id:Date.now(),
+    nombre: document.getElementById('act-nombre').value.trim(),
+    gasto:g, venta:v, ganancia:v-g,
+    fecha: document.getElementById('act-fecha').value
+  });
+  toast('Actividad guardada');
+  guardar(); e.target.reset();
+  document.getElementById('act-fecha').value = hoyColombia();
+};
+
+/* ---------- CÁLCULOS Y RENDER ---------- */
+function calcInteresCausado(){
+  // Por cada abono, parte proporcional corresponde a interés
+  return db.abonos.reduce((sum,ab)=>{
+    const p = db.prestamos.find(pr=>pr.id==ab.prestamoId);
+    if(!p || !p.totalPagar) return sum;
+    return sum + (ab.monto * (p.interesTotal / p.totalPagar));
+  },0);
+}
+function utilidadActividades(){
+  return db.actividades.reduce((s,a)=>s+(a.ganancia||0),0);
+}
+function totalAportes(){ return db.aportes.reduce((s,a)=>s+a.monto,0); }
+function totalAbonos(){ return db.abonos.reduce((s,a)=>s+a.monto,0); }
+function totalVentasAct(){ return db.actividades.reduce((s,a)=>s+a.venta,0); }
+function totalGastosAct(){ return db.actividades.reduce((s,a)=>s+a.gasto,0); }
+function capitalPrestadoPendiente(){
+  // Capital que aún no ha regresado a caja:
+  return db.prestamos.reduce((s,p)=>{
+    // Parte de capital ya recibida = abonos de ese préstamo * (capital/totalPagar)
+    const abonos = db.abonos.filter(a=>a.prestamoId==p.id).reduce((x,a)=>x+a.monto,0);
+    const capRecup = abonos * (p.capital/p.totalPagar);
+    return s + Math.max(0, p.capital - capRecup);
+  },0);
+}
+function estadoPrestamo(p){
+  if(p.saldo<=0.01) return {txt:'Cancelado',cls:'b-gray'};
+  const hoy = hoyColombia();
+  // Fecha de la próxima cuota = fecha + (cuotas pagadas + 1) meses
+  const abonos = db.abonos.filter(a=>a.prestamoId==p.id).reduce((x,a)=>x+a.monto,0);
+  const cuotasPagadas = Math.floor(abonos / p.valorCuota);
+  const proxFecha = addMonths(p.fecha, cuotasPagadas+1);
+  const dias = diffDays(proxFecha, hoy);
+  if(dias < 0) return {txt:`Al día (vence ${fechaBonita(proxFecha)})`, cls:'b-green'};
+  if(dias <= 5) return {txt:`Por vencer (${dias}d)`, cls:'b-amber'};
+  return {txt:`Mora ${dias} días`, cls:'b-red'};
+}
+
+function render(){
+  // Selects
+  document.getElementById('a-socio').innerHTML =
+    db.socios.length ? db.socios.map(s=>`<option value="${s.id}">${s.nombre} (CC ${s.cedula})</option>`).join('')
+                     : `<option value="">— Primero registra socios —</option>`;
+  document.getElementById('ab-prestamo').innerHTML =
+    db.prestamos.filter(p=>p.saldo>0).length
+      ? db.prestamos.filter(p=>p.saldo>0).map(p=>`<option value="${p.id}">${p.deudor} — saldo ${pesos(p.saldo)}</option>`).join('')
+      : `<option value="">— No hay préstamos activos —</option>`;
+
+  // KPIs
+  const tA = totalAportes();
+  const tAb = totalAbonos();
+  const intC = calcInteresCausado();
+  const uAct = utilidadActividades();
+  const uTotal = intC + uAct;
+  const saldo = tA + tAb + totalVentasAct() - totalGastosAct() - capitalPrestadoPendiente();
+
+  document.getElementById('st-aportes').textContent = pesos(tA);
+  document.getElementById('sub-aportes').textContent = `${db.aportes.length} movimiento${db.aportes.length===1?'':'s'}`;
+  document.getElementById('st-interes').textContent = pesos(intC);
+  document.getElementById('st-actividades').textContent = pesos(uAct);
+  document.getElementById('st-utilidad').textContent = pesos(uTotal);
+  document.getElementById('saldo-caja').textContent = pesos(saldo);
+
+  // TABLA SOCIOS
+  const tbSoc = document.querySelector('#tabla-socios tbody');
+  if(!db.socios.length){
+    tbSoc.innerHTML = `<tr><td colspan="5" class="empty">Aún no hay socios registrados</td></tr>`;
+  } else {
+    tbSoc.innerHTML = db.socios.map(s=>{
+      const ap = db.aportes.filter(a=>a.socioId==s.id).reduce((x,a)=>x+a.monto,0);
+      return `<tr>
+        <td>${s.nombre}</td><td>${s.cedula}</td><td>${s.tel}</td>
+        <td class="num">${pesos(ap)}</td>
+        <td class="actions">
+          <button class="btn btn-ghost btn-mini" onclick="editarSocio(${s.id})">Editar</button>
+          <button class="btn btn-red btn-mini" onclick="eliminarSocio(${s.id})">Eliminar</button>
+        </td></tr>`;
+    }).join('');
+  }
+
+  // TABLA APORTES
+  const tbA = document.querySelector('#tabla-aportes tbody');
+  if(!db.aportes.length){
+    tbA.innerHTML = `<tr><td colspan="4" class="empty">Aún no hay aportes</td></tr>`;
+  } else {
+    tbA.innerHTML = db.aportes.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(a=>{
+      const s = db.socios.find(x=>x.id==a.socioId);
+      return `<tr>
+        <td>${fechaBonita(a.fecha)}</td>
+        <td>${s?s.nombre:'—'}</td>
+        <td class="num">${pesos(a.monto)}</td>
+        <td class="actions">
+          <button class="btn btn-ghost btn-mini" onclick="imprimirReciboAporte(${a.id})">🧾 Recibo</button>
+          <button class="btn btn-red btn-mini" onclick="eliminarAporte(${a.id})">Eliminar</button>
+        </td></tr>`;
+    }).join('');
+  }
+
+  // TABLA PRÉSTAMOS
+  const tbP = document.querySelector('#tabla-prestamos tbody');
+  if(!db.prestamos.length){
+    tbP.innerHTML = `<tr><td colspan="8" class="empty">Aún no hay préstamos</td></tr>`;
+  } else {
+    tbP.innerHTML = db.prestamos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(p=>{
+      const est = estadoPrestamo(p);
+      return `<tr>
+        <td><strong>${p.deudor}</strong><br><span style="font-size:11px;color:var(--ink-soft)">${p.tipo==='socio'?'Socio 5%':'Externo 10%'} · ${fechaBonita(p.fecha)}</span></td>
+        <td class="num">${pesos(p.capital)}</td>
+        <td class="num">${pesos(p.totalPagar)}</td>
+        <td>${p.meses}</td>
+        <td class="num">${pesos(p.valorCuota)}</td>
+        <td class="num"><strong>${pesos(p.saldo)}</strong></td>
+        <td><span class="badge ${est.cls}">${est.txt}</span></td>
+        <td class="actions">
+          <button class="btn btn-ghost btn-mini" onclick="verPlanCuotas(${p.id})">📅 Plan</button>
+          <button class="btn btn-red btn-mini" onclick="eliminarPrestamo(${p.id})">Eliminar</button>
+        </td></tr>`;
+    }).join('');
+  }
+
+  // TABLA ABONOS
+  const tbAb = document.querySelector('#tabla-abonos tbody');
+  if(!db.abonos.length){
+    tbAb.innerHTML = `<tr><td colspan="4" class="empty">Aún no hay abonos recibidos</td></tr>`;
+  } else {
+    tbAb.innerHTML = db.abonos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(ab=>`
+      <tr>
+        <td>${fechaBonita(ab.fecha)}</td>
+        <td>${ab.deudor}</td>
+        <td class="num">${pesos(ab.monto)}</td>
+        <td class="actions">
+          <button class="btn btn-ghost btn-mini" onclick="imprimirReciboAbono(${ab.id})">🧾 Recibo</button>
+          <button class="btn btn-red btn-mini" onclick="eliminarAbono(${ab.id})">Eliminar</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  // TABLA ACTIVIDADES
+  const tbAct = document.querySelector('#tabla-actividades tbody');
+  if(!db.actividades.length){
+    tbAct.innerHTML = `<tr><td colspan="6" class="empty">Aún no hay actividades registradas</td></tr>`;
+  } else {
+    tbAct.innerHTML = db.actividades.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(act=>`
+      <tr>
+        <td>${fechaBonita(act.fecha)}</td>
+        <td>${act.nombre}</td>
+        <td class="num">${pesos(act.gasto)}</td>
+        <td class="num">${pesos(act.venta)}</td>
+        <td class="num"><strong>${pesos(act.ganancia)}</strong></td>
+        <td class="actions">
+          <button class="btn btn-red btn-mini" onclick="eliminarActividad(${act.id})">Eliminar</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  // LIQUIDACIÓN
+  const tbL = document.querySelector('#tabla-liq tbody');
+  const foot = document.getElementById('liq-foot');
+  if(!db.socios.length){
+    tbL.innerHTML = `<tr><td colspan="4" class="empty">Registra socios para ver la liquidación</td></tr>`;
+    foot.innerHTML = '';
+  } else {
+    const uSocio = db.socios.length>0 ? uTotal / db.socios.length : 0;
+    let sumAp=0, sumU=0, sumT=0;
+    tbL.innerHTML = db.socios.map(s=>{
+      const ap = db.aportes.filter(a=>a.socioId==s.id).reduce((x,a)=>x+a.monto,0);
+      const tot = ap + uSocio;
+      sumAp+=ap; sumU+=uSocio; sumT+=tot;
+      return `<tr>
+        <td>${s.nombre}</td>
+        <td class="num">${pesos(ap)}</td>
+        <td class="num">${pesos(uSocio)}</td>
+        <td class="num"><strong>${pesos(tot)}</strong></td>
+      </tr>`;
+    }).join('');
+    foot.innerHTML = `<tr style="background:#fbf7e8;font-weight:800">
+      <td>TOTAL (${db.socios.length} socios)</td>
+      <td class="num">${pesos(sumAp)}</td>
+      <td class="num">${pesos(sumU)}</td>
+      <td class="num">${pesos(sumT)}</td>
+    </tr>`;
+  }
+
+  // admin WA
+  document.getElementById('admin-wa').value = db.adminWA || '';
+}
+
+/* ---------- Editar / eliminar ---------- */
+function eliminarSocio(id){
+  const s = db.socios.find(x=>x.id===id);
+  const aportesDelSocio = db.aportes.filter(a=>a.socioId===id).length;
+  const msg = aportesDelSocio>0
+    ? `"${s.nombre}" tiene ${aportesDelSocio} aporte(s) registrados. Si lo eliminas, los aportes quedarán huérfanos. ¿Continuar?`
+    : `¿Eliminar al socio "${s.nombre}"?`;
+  confirmar('Eliminar socio', msg, ()=>{
+    db.socios = db.socios.filter(x=>x.id!==id);
+    guardar(); toast('Socio eliminado');
+  }, 'Eliminar');
+}
+function editarSocio(id){
+  const s = db.socios.find(x=>x.id===id);
+  modal(`
+    <h3>Editar socio</h3>
+    <div class="card" style="box-shadow:none;border:0;padding:0;margin:0">
+      <label>Nombre</label><input id="ed-n" value="${s.nombre.replace(/"/g,'&quot;')}">
+      <label style="margin-top:8px">Cédula</label><input id="ed-c" value="${s.cedula}">
+      <label style="margin-top:8px">WhatsApp</label><input id="ed-t" maxlength="10" value="${s.tel}">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
+      <button class="btn btn-primary" id="ok-ed">Guardar cambios</button>
+    </div>`);
+  document.getElementById('ok-ed').onclick = ()=>{
+    s.nombre = document.getElementById('ed-n').value.trim();
+    s.cedula = document.getElementById('ed-c').value.trim();
+    const t = document.getElementById('ed-t').value.trim();
+    if(!/^\d{10}$/.test(t)){ toast('WhatsApp inválido','err'); return; }
+    s.tel = t;
+    modalClose(); guardar(); toast('Socio actualizado');
+  };
+}
+function eliminarAporte(id){
+  const a = db.aportes.find(x=>x.id===id);
+  const s = db.socios.find(x=>x.id===a.socioId);
+  confirmar('Eliminar aporte',
+    `¿Eliminar aporte de ${pesos(a.monto)} de ${s?s.nombre:'—'} del ${fechaBonita(a.fecha)}?`,
+    ()=>{ db.aportes = db.aportes.filter(x=>x.id!==id); guardar(); toast('Aporte eliminado'); },
+    'Eliminar');
+}
+function eliminarPrestamo(id){
+  const p = db.prestamos.find(x=>x.id===id);
+  const abonosP = db.abonos.filter(a=>a.prestamoId===id).length;
+  const msg = abonosP>0
+    ? `El préstamo de ${p.deudor} tiene ${abonosP} abono(s). Si lo eliminas, los abonos quedarán huérfanos. ¿Continuar?`
+    : `¿Eliminar préstamo de ${p.deudor}?`;
+  confirmar('Eliminar préstamo', msg, ()=>{
+    db.prestamos = db.prestamos.filter(x=>x.id!==id);
+    guardar(); toast('Préstamo eliminado');
+  }, 'Eliminar');
+}
+function eliminarAbono(id){
+  const ab = db.abonos.find(x=>x.id===id);
+  confirmar('Eliminar abono',
+    `¿Eliminar abono de ${pesos(ab.monto)} de ${ab.deudor}? El saldo del préstamo se recalculará.`,
+    ()=>{
+      db.abonos = db.abonos.filter(x=>x.id!==id);
+      // recalcular saldo del préstamo
+      const p = db.prestamos.find(x=>x.id==ab.prestamoId);
+      if(p){
+        const suma = db.abonos.filter(a=>a.prestamoId==p.id).reduce((s,a)=>s+a.monto,0);
+        p.saldo = Math.max(0, p.totalPagar - suma);
+      }
+      guardar(); toast('Abono eliminado');
+    },'Eliminar');
+}
+function eliminarActividad(id){
+  const act = db.actividades.find(x=>x.id===id);
+  confirmar('Eliminar actividad', `¿Eliminar "${act.nombre}"?`, ()=>{
+    db.actividades = db.actividades.filter(x=>x.id!==id);
+    guardar(); toast('Actividad eliminada');
+  }, 'Eliminar');
+}
+
+/* ---------- Plan de cuotas ---------- */
+function verPlanCuotas(id){
+  const p = db.prestamos.find(x=>x.id===id);
+  if(!p) return;
+  const abonosP = db.abonos.filter(a=>a.prestamoId===id).reduce((s,a)=>s+a.monto,0);
+  let cubierto = abonosP;
+  let rows='';
+  const hoy = hoyColombia();
+  for(let i=1;i<=p.meses;i++){
+    const vence = addMonths(p.fecha, i);
+    const cuota = p.valorCuota;
+    let estadoTxt, estadoCls;
+    if(cubierto >= cuota){
+      estadoTxt='Pagada'; estadoCls='b-green'; cubierto -= cuota;
+    } else {
+      const dias = diffDays(vence, hoy);
+      if(dias<0){ estadoTxt='Pendiente'; estadoCls='b-gray'; }
+      else if(dias<=5){ estadoTxt=`Por vencer (${dias}d)`; estadoCls='b-amber'; }
+      else { estadoTxt=`Mora ${dias}d`; estadoCls='b-red'; }
+    }
+    rows += `<tr>
+      <td>${i}</td>
+      <td>${fechaBonita(vence)}</td>
+      <td class="num">${pesos(cuota)}</td>
+      <td><span class="badge ${estadoCls}">${estadoTxt}</span></td>
+    </tr>`;
+  }
+  modal(`
+    <h3>Plan de cuotas — ${p.deudor}</h3>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px">
+      Capital ${pesos(p.capital)} · Interés total ${pesos(p.interesTotal)} · Saldo ${pesos(p.saldo)}
+    </p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Vence</th><th class="num">Cuota</th><th>Estado</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <div class="modal-actions"><button class="btn btn-primary" onclick="modalClose()">Cerrar</button></div>
+  `);
+}
+
+/* ---------- Recibos imprimibles ---------- */
+function imprimirReciboAporte(id){
+  const a = db.aportes.find(x=>x.id===id);
+  const s = db.socios.find(x=>x.id===a.socioId);
+  renderRecibo({
+    tipo:'APORTE',
+    nombre: s?s.nombre:'—',
+    ref: s?`CC ${s.cedula}`:'',
+    monto: a.monto,
+    fecha: a.fecha,
+    extra:'Constancia de aporte a la natillera'
+  });
+}
+function imprimirReciboAbono(id){
+  const ab = db.abonos.find(x=>x.id===id);
+  const p = db.prestamos.find(x=>x.id==ab.prestamoId);
+  renderRecibo({
+    tipo:'ABONO A PRÉSTAMO',
+    nombre: ab.deudor,
+    ref: p ? `Saldo actual: ${pesos(p.saldo)}` : '',
+    monto: ab.monto,
+    fecha: ab.fecha,
+    extra:'Constancia de pago'
+  });
+}
+function renderRecibo(d){
+  const num = String(Date.now()).slice(-6);
+  const box = document.getElementById('recibo-print');
+  box.style.display='block';
+  box.innerHTML = `
+    <h2>Natillera LA FORTUNA</h2>
+    <div style="font-size:12px;color:#666;margin-bottom:14px">Recibo N° ${num} · ${d.tipo}</div>
+    <div class="r-row"><span>Beneficiario</span><b>${d.nombre}</b></div>
+    ${d.ref?`<div class="r-row"><span>Referencia</span><b>${d.ref}</b></div>`:''}
+    <div class="r-row"><span>Valor</span><b>${pesos(d.monto)}</b></div>
+    <div class="r-row"><span>Fecha</span><b>${fechaBonita(d.fecha)}</b></div>
+    <div class="r-row"><span>Observación</span><b>${d.extra}</b></div>
+    <div style="margin-top:36px;display:flex;justify-content:space-between;gap:40px">
+      <div style="flex:1;border-top:1px solid #000;text-align:center;padding-top:6px;font-size:12px">Recibió</div>
+      <div style="flex:1;border-top:1px solid #000;text-align:center;padding-top:6px;font-size:12px">Entregó</div>
+    </div>
+    <div class="r-foot">Desarrollada por Vibras Positivas HM — Derechos de Autor Reservados</div>
+  `;
+  setTimeout(()=>{ window.print(); box.style.display='none'; }, 100);
+}
+
+/* ---------- Export Excel ---------- */
+function exportarExcelTotal(){
+  const intC = calcInteresCausado();
+  const uAct = utilidadActividades();
+  const uTotal = intC + uAct;
+  const uSocio = db.socios.length>0 ? uTotal/db.socios.length : 0;
+
+  const liq = db.socios.map(s=>{
+    const ap = db.aportes.filter(a=>a.socioId==s.id).reduce((x,a)=>x+a.monto,0);
+    return {Socio:s.nombre, Cedula:s.cedula, Aportes:ap, 'Utilidad equitativa':Math.round(uSocio), 'Total a recibir':Math.round(ap+uSocio)};
+  });
+  const resumen = [
+    {Concepto:'Total aportes', Valor: totalAportes()},
+    {Concepto:'Total abonos recibidos', Valor: totalAbonos()},
+    {Concepto:'Intereses causados', Valor: Math.round(intC)},
+    {Concepto:'Utilidad actividades', Valor: Math.round(uAct)},
+    {Concepto:'Utilidad total', Valor: Math.round(uTotal)},
+    {Concepto:'Utilidad por socio', Valor: Math.round(uSocio)},
+    {Concepto:'Capital prestado pendiente', Valor: Math.round(capitalPrestadoPendiente())},
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resumen), 'RESUMEN');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(liq), 'LIQUIDACION');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.socios), 'SOCIOS');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.aportes.map(a=>{
+    const s = db.socios.find(x=>x.id==a.socioId);
+    return {Fecha:a.fecha, Socio:s?s.nombre:'—', Valor:a.monto};
+  })), 'APORTES');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.prestamos), 'PRESTAMOS');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.abonos), 'ABONOS');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.actividades), 'ACTIVIDADES');
+  XLSX.writeFile(wb, `LaFortuna_Informe_${hoyColombia()}.xlsx`);
+  toast('Excel descargado');
+}
+
+/* ---------- WhatsApp reporte mensual ---------- */
+function enviarReporteWhatsApp(){
+  if(!db.adminWA){ toast('Primero guarda el WhatsApp de admin en Datos','err'); return; }
+  const intC = calcInteresCausado();
+  const uAct = utilidadActividades();
+  const uTotal = intC + uAct;
+  const uSocio = db.socios.length>0 ? uTotal/db.socios.length : 0;
+  const saldo = totalAportes()+totalAbonos()+totalVentasAct()-totalGastosAct()-capitalPrestadoPendiente();
+
+  const lineas = [
+    '*NATILLERA LA FORTUNA — REPORTE*',
+    `Corte: ${fechaBonita(hoyColombia())}`,
+    '',
+    `👥 Socios: ${db.socios.length}`,
+    `💵 Aportes acumulados: ${pesos(totalAportes())}`,
+    `🏦 Préstamos activos: ${db.prestamos.filter(p=>p.saldo>0).length}`,
+    `📥 Abonos recibidos: ${pesos(totalAbonos())}`,
+    `📈 Intereses causados: ${pesos(intC)}`,
+    `🎉 Utilidad actividades: ${pesos(uAct)}`,
+    '',
+    `💰 *Utilidad total: ${pesos(uTotal)}*`,
+    `🔄 Utilidad por socio: ${pesos(uSocio)}`,
+    `🧾 Saldo en caja: ${pesos(saldo)}`,
+    '',
+    '_Generado por Vibras Positivas HM_'
+  ];
+  const msg = encodeURIComponent(lineas.join('\n'));
+  window.open(`https://wa.me/57${db.adminWA}?text=${msg}`,'_blank');
+}
+
+/* ---------- Backup / Restore ---------- */
+function descargarBackup(){
+  const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `LaFortuna_Backup_${hoyColombia()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('Respaldo descargado');
+}
+function restaurarBackup(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.socios || !Array.isArray(data.socios)) throw new Error('Formato inválido');
+      confirmar('Restaurar respaldo',
+        `Se reemplazarán TODOS los datos actuales por los del archivo. Esta acción no se puede deshacer. ¿Continuar?`,
+        ()=>{
+          db = Object.assign(esquemaVacio(), data);
+          guardar(); toast('Respaldo restaurado');
+        },'Sí, restaurar','btn-gold');
+    }catch(err){ toast('Archivo inválido: '+err.message,'err'); }
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+function borrarTodo(){
+  confirmar('Borrar TODO',
+    'Esto eliminará socios, aportes, préstamos, abonos y actividades. ¿Descargaste ya el respaldo? Esta acción NO se puede deshacer.',
+    ()=>{ db = esquemaVacio(); guardar(); toast('Datos borrados'); },
+    'Sí, borrar todo');
+}
+function guardarAdminWA(){
+  const v = document.getElementById('admin-wa').value.trim();
+  if(v && !/^\d{10}$/.test(v)){ toast('WhatsApp inválido','err'); return; }
+  db.adminWA = v;
+  guardar(); toast('Número guardado');
+}
+
+/* init */
+render();
+</script>
+</body>
+</html>
