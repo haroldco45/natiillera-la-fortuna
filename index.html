@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Natillera LA FORTUNA</title>
+<title>Natillera LA FORTUNA — Vibras Positivas HM</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -107,16 +107,30 @@
   .kpi .val{font-family:'Fraunces',serif;font-weight:700;font-size:24px;margin-top:4px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
   .kpi .sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px}
 
-  .saldo-big{
+  .saldos-row{
     margin-top:18px;
-    background:linear-gradient(135deg,#fefaea 0%,#fff6dd 100%);
-    border:1px solid #e9d8a0;border-radius:16px;
-    padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
-    box-shadow:var(--shadow);
+    display:grid;gap:12px;
+    grid-template-columns:1fr 1fr;
   }
-  .saldo-big .lbl{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:#7a5e1a;font-weight:800}
-  .saldo-big .val{font-family:'Fraunces',serif;font-weight:900;font-size:30px;color:#2b1d00;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
-  .saldo-big .note{font-size:12px;color:#7a5e1a}
+  .saldo-big{
+    border-radius:16px;
+    padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    box-shadow:var(--shadow);border:1px solid;
+  }
+  .saldo-caja{
+    background:linear-gradient(135deg,#fefaea 0%,#fff6dd 100%);
+    border-color:#e9d8a0;
+  }
+  .saldo-caja .lbl{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:#7a5e1a;font-weight:800}
+  .saldo-caja .val{font-family:'Fraunces',serif;font-weight:900;font-size:28px;color:#2b1d00;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .saldo-caja .note{font-size:12px;color:#7a5e1a}
+  .saldo-patrimonio{
+    background:linear-gradient(135deg,#eef6ef 0%,#e1efe4 100%);
+    border-color:#b5d6bd;
+  }
+  .saldo-patrimonio .lbl{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:#1d5a36;font-weight:800}
+  .saldo-patrimonio .val{font-family:'Fraunces',serif;font-weight:900;font-size:28px;color:#0e3b22;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .saldo-patrimonio .note{font-size:12px;color:#1d5a36}
 
   /* TABS */
   nav.tabs{
@@ -193,6 +207,17 @@
 
   .empty{padding:24px;text-align:center;color:var(--ink-soft);font-size:13px;font-style:italic}
 
+  /* BACKUP BAR */
+  .backup-bar{
+    background:linear-gradient(135deg,#fefaea 0%,#fcf3d1 100%);
+    border:1.5px dashed var(--gold);border-radius:14px;padding:14px 18px;margin-bottom:16px;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  }
+  .backup-info{flex:1;min-width:220px}
+  .backup-info strong{display:block;font-family:'Fraunces',serif;font-size:15px;color:#5a4210;margin-bottom:2px}
+  .backup-info span{font-size:12.5px;color:#7a5e1a}
+  .backup-actions{display:flex;gap:8px;flex-wrap:wrap}
+
   /* TOOLBAR */
   .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 
@@ -231,6 +256,7 @@
     header.hero{padding:20px}
     .brand h1{font-size:22px}
     .saldo-big .val{font-size:24px}
+    .saldos-row{grid-template-columns:1fr}
   }
 
   /* PRINT (recibo) */
@@ -266,13 +292,22 @@
     </div>
   </header>
 
-  <!-- SALDO GRANDE -->
-  <div class="saldo-big">
-    <div>
-      <div class="lbl">Saldo real en caja</div>
-      <div class="note">Aportes + Abonos + Ingresos de actividades − (Gastos + Capital prestado pendiente)</div>
+  <!-- SALDOS GRANDES -->
+  <div class="saldos-row">
+    <div class="saldo-big saldo-caja">
+      <div>
+        <div class="lbl">💵 Disponible en caja</div>
+        <div class="note">Aportes + Intereses + Actividades − Capital prestado activo</div>
+      </div>
+      <div class="val" id="saldo-caja">$0</div>
     </div>
-    <div class="val" id="saldo-caja">$0</div>
+    <div class="saldo-big saldo-patrimonio">
+      <div>
+        <div class="lbl">🏦 Patrimonio total del grupo</div>
+        <div class="note">Caja disponible + Capital aún prestado</div>
+      </div>
+      <div class="val" id="saldo-patrimonio">$0</div>
+    </div>
   </div>
 
   <!-- KPIs -->
@@ -297,6 +332,20 @@
   <!-- SOCIOS -->
   <section class="page active" id="sec-socios">
     <h2 class="title">Asociados de la natillera</h2>
+
+    <!-- BARRA DE RESPALDO VISIBLE -->
+    <div class="backup-bar">
+      <div class="backup-info">
+        <strong>🔐 Copia de seguridad</strong>
+        <span>Recuerda descargar tu respaldo cada viernes. Así nunca pierdes la información.</span>
+      </div>
+      <div class="backup-actions">
+        <button class="btn btn-green" onclick="descargarBackup()">⬇️ Descargar respaldo</button>
+        <button class="btn btn-gold" onclick="document.getElementById('file-restore-top').click()">⬆️ Restaurar</button>
+        <input type="file" id="file-restore-top" accept=".json" style="display:none" onchange="restaurarBackup(this)">
+      </div>
+    </div>
+
     <div class="card">
       <form class="grid" id="form-socio">
         <div><label>Nombre completo</label><input type="text" id="s-nombre" required></div>
@@ -733,11 +782,13 @@ function totalAbonos(){ return db.abonos.reduce((s,a)=>s+a.monto,0); }
 function totalVentasAct(){ return db.actividades.reduce((s,a)=>s+a.venta,0); }
 function totalGastosAct(){ return db.actividades.reduce((s,a)=>s+a.gasto,0); }
 function capitalPrestadoPendiente(){
-  // Capital que aún no ha regresado a caja:
+  // Capital que aún no ha regresado a caja.
+  // Si el préstamo ya está cancelado (saldo = 0), todo el capital regresó.
   return db.prestamos.reduce((s,p)=>{
-    // Parte de capital ya recibida = abonos de ese préstamo * (capital/totalPagar)
+    if(p.saldo <= 0.01) return s; // préstamo ya pagado, no hay capital pendiente
+    // Parte de capital ya recibida vía abonos, proporcional:
     const abonos = db.abonos.filter(a=>a.prestamoId==p.id).reduce((x,a)=>x+a.monto,0);
-    const capRecup = abonos * (p.capital/p.totalPagar);
+    const capRecup = abonos * (p.capital / p.totalPagar);
     return s + Math.max(0, p.capital - capRecup);
   },0);
 }
@@ -770,14 +821,21 @@ function render(){
   const intC = calcInteresCausado();
   const uAct = utilidadActividades();
   const uTotal = intC + uAct;
-  const saldo = tA + tAb + totalVentasAct() - totalGastosAct() - capitalPrestadoPendiente();
+  const capPend = capitalPrestadoPendiente();
+  // Disponible para prestar = dinero físicamente en caja ahora mismo
+  // = Aportes + Intereses ganados + Utilidad actividades − Capital aún prestado
+  // (el capital que regresa de los abonos NO es dinero nuevo, solo es retorno de lo prestado)
+  const saldoCaja = tA + intC + (totalVentasAct() - totalGastosAct()) - capPend;
+  // Patrimonio total = disponible + capital aún prestado por recuperar
+  const patrimonio = saldoCaja + capPend;
 
   document.getElementById('st-aportes').textContent = pesos(tA);
   document.getElementById('sub-aportes').textContent = `${db.aportes.length} movimiento${db.aportes.length===1?'':'s'}`;
   document.getElementById('st-interes').textContent = pesos(intC);
   document.getElementById('st-actividades').textContent = pesos(uAct);
   document.getElementById('st-utilidad').textContent = pesos(uTotal);
-  document.getElementById('saldo-caja').textContent = pesos(saldo);
+  document.getElementById('saldo-caja').textContent = pesos(saldoCaja);
+  document.getElementById('saldo-patrimonio').textContent = pesos(patrimonio);
 
   // TABLA SOCIOS
   const tbSoc = document.querySelector('#tabla-socios tbody');
@@ -809,6 +867,7 @@ function render(){
         <td class="num">${pesos(a.monto)}</td>
         <td class="actions">
           <button class="btn btn-ghost btn-mini" onclick="imprimirReciboAporte(${a.id})">🧾 Recibo</button>
+          <button class="btn btn-gold btn-mini" onclick="editarAporte(${a.id})">✏️ Editar</button>
           <button class="btn btn-red btn-mini" onclick="eliminarAporte(${a.id})">Eliminar</button>
         </td></tr>`;
     }).join('');
@@ -831,6 +890,7 @@ function render(){
         <td><span class="badge ${est.cls}">${est.txt}</span></td>
         <td class="actions">
           <button class="btn btn-ghost btn-mini" onclick="verPlanCuotas(${p.id})">📅 Plan</button>
+          <button class="btn btn-gold btn-mini" onclick="editarPrestamo(${p.id})">✏️ Editar</button>
           <button class="btn btn-red btn-mini" onclick="eliminarPrestamo(${p.id})">Eliminar</button>
         </td></tr>`;
     }).join('');
@@ -848,6 +908,7 @@ function render(){
         <td class="num">${pesos(ab.monto)}</td>
         <td class="actions">
           <button class="btn btn-ghost btn-mini" onclick="imprimirReciboAbono(${ab.id})">🧾 Recibo</button>
+          <button class="btn btn-gold btn-mini" onclick="editarAbono(${ab.id})">✏️ Editar</button>
           <button class="btn btn-red btn-mini" onclick="eliminarAbono(${ab.id})">Eliminar</button>
         </td>
       </tr>`).join('');
@@ -866,6 +927,7 @@ function render(){
         <td class="num">${pesos(act.venta)}</td>
         <td class="num"><strong>${pesos(act.ganancia)}</strong></td>
         <td class="actions">
+          <button class="btn btn-gold btn-mini" onclick="editarActividad(${act.id})">✏️ Editar</button>
           <button class="btn btn-red btn-mini" onclick="eliminarActividad(${act.id})">Eliminar</button>
         </td>
       </tr>`).join('');
@@ -977,6 +1039,157 @@ function eliminarActividad(id){
     db.actividades = db.actividades.filter(x=>x.id!==id);
     guardar(); toast('Actividad eliminada');
   }, 'Eliminar');
+}
+
+/* ---------- Editar aporte ---------- */
+function editarAporte(id){
+  const a = db.aportes.find(x=>x.id===id);
+  if(!a) return;
+  const opts = db.socios.map(s=>`<option value="${s.id}" ${s.id==a.socioId?'selected':''}>${s.nombre} (CC ${s.cedula})</option>`).join('');
+  modal(`
+    <h3>Editar aporte</h3>
+    <div style="display:grid;gap:10px">
+      <div><label>Socio</label><select id="ea-socio">${opts}</select></div>
+      <div><label>Valor</label><input type="number" id="ea-monto" min="1" step="any" value="${a.monto}"></div>
+      <div><label>Fecha</label><input type="date" id="ea-fecha" value="${a.fecha}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
+      <button class="btn btn-primary" id="ok-ea">Guardar cambios</button>
+    </div>`);
+  document.getElementById('ok-ea').onclick = ()=>{
+    const monto = parseFloat(document.getElementById('ea-monto').value);
+    const fecha = document.getElementById('ea-fecha').value;
+    const sId = Number(document.getElementById('ea-socio').value);
+    if(!(monto>0)){ toast('Valor inválido','err'); return; }
+    if(!fecha){ toast('Fecha inválida','err'); return; }
+    a.monto = monto; a.fecha = fecha; a.socioId = sId;
+    modalClose(); guardar(); toast('Aporte actualizado');
+  };
+}
+
+/* ---------- Editar préstamo ---------- */
+function editarPrestamo(id){
+  const p = db.prestamos.find(x=>x.id===id);
+  if(!p) return;
+  const abonosP = db.abonos.filter(a=>a.prestamoId===id).reduce((s,a)=>s+a.monto,0);
+  const aviso = abonosP>0
+    ? `<div style="background:var(--amber-soft);padding:10px;border-radius:8px;font-size:12.5px;color:#7a5e1a;margin-bottom:10px">⚠️ Este préstamo ya tiene ${pesos(abonosP)} en abonos. Al cambiar capital, cuotas o tasa, el total y el saldo se recalculan automáticamente.</div>`
+    : '';
+  modal(`
+    <h3>Editar préstamo</h3>
+    ${aviso}
+    <div style="display:grid;gap:10px">
+      <div><label>Deudor</label><input id="ep-nombre" value="${p.deudor.replace(/"/g,'&quot;')}"></div>
+      <div><label>WhatsApp (10 dígitos)</label><input id="ep-tel" maxlength="10" value="${p.tel||''}"></div>
+      <div><label>Tipo</label><select id="ep-tipo">
+        <option value="socio" ${p.tipo==='socio'?'selected':''}>Asociado (5%)</option>
+        <option value="tercero" ${p.tipo==='tercero'?'selected':''}>Externo (10%)</option>
+      </select></div>
+      <div><label>Capital</label><input type="number" id="ep-capital" min="1" step="any" value="${p.capital}"></div>
+      <div><label>Cuotas (1 a 4)</label><select id="ep-cuotas">
+        <option value="1" ${p.meses==1?'selected':''}>1 mes</option>
+        <option value="2" ${p.meses==2?'selected':''}>2 meses</option>
+        <option value="3" ${p.meses==3?'selected':''}>3 meses</option>
+        <option value="4" ${p.meses==4?'selected':''}>4 meses</option>
+      </select></div>
+      <div><label>Codeudor</label><input id="ep-codeudor" value="${(p.codeudor||'').replace(/"/g,'&quot;')}"></div>
+      <div><label>Fecha</label><input type="date" id="ep-fecha" value="${p.fecha}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
+      <button class="btn btn-primary" id="ok-ep">Guardar cambios</button>
+    </div>`);
+  document.getElementById('ok-ep').onclick = ()=>{
+    const nombre = document.getElementById('ep-nombre').value.trim();
+    const tel = document.getElementById('ep-tel').value.trim();
+    const tipo = document.getElementById('ep-tipo').value;
+    const cap = parseFloat(document.getElementById('ep-capital').value);
+    const meses = parseInt(document.getElementById('ep-cuotas').value);
+    const codeudor = document.getElementById('ep-codeudor').value.trim();
+    const fecha = document.getElementById('ep-fecha').value;
+    if(!nombre){ toast('Nombre requerido','err'); return; }
+    if(tel && !/^\d{10}$/.test(tel)){ toast('WhatsApp inválido','err'); return; }
+    if(!(cap>0)){ toast('Capital inválido','err'); return; }
+    const tasa = tipo==='socio' ? 0.05 : 0.10;
+    const intTotal = cap * tasa * meses;
+    const total = cap + intTotal;
+    const abonosSuma = db.abonos.filter(a=>a.prestamoId===id).reduce((s,a)=>s+a.monto,0);
+    p.deudor = nombre; p.tel = tel; p.tipo = tipo;
+    p.capital = cap; p.tasa = tasa; p.meses = meses;
+    p.interesTotal = intTotal; p.totalPagar = total;
+    p.valorCuota = total/meses;
+    p.saldo = Math.max(0, total - abonosSuma);
+    p.codeudor = codeudor; p.fecha = fecha;
+    modalClose(); guardar(); toast('Préstamo actualizado');
+  };
+}
+
+/* ---------- Editar abono ---------- */
+function editarAbono(id){
+  const ab = db.abonos.find(x=>x.id===id);
+  if(!ab) return;
+  const prestamosActivos = db.prestamos;
+  const opts = prestamosActivos.map(p=>`<option value="${p.id}" ${p.id==ab.prestamoId?'selected':''}>${p.deudor} — total ${pesos(p.totalPagar)}</option>`).join('');
+  modal(`
+    <h3>Editar abono</h3>
+    <div style="display:grid;gap:10px">
+      <div><label>Préstamo</label><select id="eb-prestamo">${opts}</select></div>
+      <div><label>Valor del abono</label><input type="number" id="eb-monto" min="1" step="any" value="${ab.monto}"></div>
+      <div><label>Fecha</label><input type="date" id="eb-fecha" value="${ab.fecha}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
+      <button class="btn btn-primary" id="ok-eb">Guardar cambios</button>
+    </div>`);
+  document.getElementById('ok-eb').onclick = ()=>{
+    const monto = parseFloat(document.getElementById('eb-monto').value);
+    const fecha = document.getElementById('eb-fecha').value;
+    const pId = Number(document.getElementById('eb-prestamo').value);
+    if(!(monto>0)){ toast('Valor inválido','err'); return; }
+    if(!fecha){ toast('Fecha inválida','err'); return; }
+    const pNuevo = db.prestamos.find(x=>x.id===pId);
+    if(!pNuevo){ toast('Préstamo inválido','err'); return; }
+    const pViejoId = ab.prestamoId;
+    ab.monto = monto; ab.fecha = fecha; ab.prestamoId = pId; ab.deudor = pNuevo.deudor;
+    // Recalcular saldos de ambos préstamos (el anterior y el nuevo, si cambió)
+    [pViejoId, pId].forEach(pid=>{
+      const pr = db.prestamos.find(x=>x.id==pid);
+      if(pr){
+        const suma = db.abonos.filter(a=>a.prestamoId==pid).reduce((s,a)=>s+a.monto,0);
+        pr.saldo = Math.max(0, pr.totalPagar - suma);
+      }
+    });
+    modalClose(); guardar(); toast('Abono actualizado');
+  };
+}
+
+/* ---------- Editar actividad ---------- */
+function editarActividad(id){
+  const act = db.actividades.find(x=>x.id===id);
+  if(!act) return;
+  modal(`
+    <h3>Editar actividad</h3>
+    <div style="display:grid;gap:10px">
+      <div><label>Nombre</label><input id="ec-nombre" value="${act.nombre.replace(/"/g,'&quot;')}"></div>
+      <div><label>Gasto</label><input type="number" id="ec-gasto" min="0" step="any" value="${act.gasto}"></div>
+      <div><label>Ingreso</label><input type="number" id="ec-venta" min="0" step="any" value="${act.venta}"></div>
+      <div><label>Fecha</label><input type="date" id="ec-fecha" value="${act.fecha}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
+      <button class="btn btn-primary" id="ok-ec">Guardar cambios</button>
+    </div>`);
+  document.getElementById('ok-ec').onclick = ()=>{
+    const nombre = document.getElementById('ec-nombre').value.trim();
+    const g = parseFloat(document.getElementById('ec-gasto').value);
+    const v = parseFloat(document.getElementById('ec-venta').value);
+    const fecha = document.getElementById('ec-fecha').value;
+    if(!nombre){ toast('Nombre requerido','err'); return; }
+    if(g<0 || v<0 || isNaN(g) || isNaN(v)){ toast('Valores inválidos','err'); return; }
+    act.nombre = nombre; act.gasto = g; act.venta = v; act.ganancia = v-g; act.fecha = fecha;
+    modalClose(); guardar(); toast('Actividad actualizada');
+  };
 }
 
 /* ---------- Plan de cuotas ---------- */
@@ -1107,7 +1320,9 @@ function enviarReporteWhatsApp(){
   const uAct = utilidadActividades();
   const uTotal = intC + uAct;
   const uSocio = db.socios.length>0 ? uTotal/db.socios.length : 0;
-  const saldo = totalAportes()+totalAbonos()+totalVentasAct()-totalGastosAct()-capitalPrestadoPendiente();
+  const capPend = capitalPrestadoPendiente();
+  const saldoCaja = totalAportes() + intC + uAct - capPend;
+  const patrimonio = saldoCaja + capPend;
 
   const lineas = [
     '*NATILLERA LA FORTUNA — REPORTE*',
@@ -1122,7 +1337,10 @@ function enviarReporteWhatsApp(){
     '',
     `💰 *Utilidad total: ${pesos(uTotal)}*`,
     `🔄 Utilidad por socio: ${pesos(uSocio)}`,
-    `🧾 Saldo en caja: ${pesos(saldo)}`,
+    '',
+    `💵 Disponible en caja: ${pesos(saldoCaja)}`,
+    `🏦 Capital prestado activo: ${pesos(capPend)}`,
+    `📊 *Patrimonio total: ${pesos(patrimonio)}*`,
     '',
     '_Generado por Vibras Positivas HM_'
   ];
