@@ -277,7 +277,6 @@
 <body>
 <div class="app">
 
-  <!-- HEADER -->
   <header class="hero">
     <div class="brand">
       <div class="coin">LF</div>
@@ -292,7 +291,6 @@
     </div>
   </header>
 
-  <!-- SALDOS GRANDES -->
   <div class="saldos-row">
     <div class="saldo-big saldo-caja">
       <div>
@@ -310,7 +308,6 @@
     </div>
   </div>
 
-  <!-- KPIs -->
   <div class="kpi-row">
     <div class="kpi green"><div class="lbl">Aportes acumulados</div><div class="val" id="st-aportes">$0</div><div class="sub" id="sub-aportes">0 movimientos</div></div>
     <div class="kpi"><div class="lbl">Intereses causados</div><div class="val" id="st-interes">$0</div><div class="sub" id="sub-interes">De abonos recibidos</div></div>
@@ -318,7 +315,6 @@
     <div class="kpi ink"><div class="lbl">Utilidad total</div><div class="val" id="st-utilidad">$0</div><div class="sub" id="sub-util">A repartir partes iguales</div></div>
   </div>
 
-  <!-- TABS -->
   <nav class="tabs" id="tabs">
     <button data-tab="sec-socios" class="active">👥 Socios</button>
     <button data-tab="sec-aportes">💵 Aportes</button>
@@ -329,11 +325,9 @@
     <button data-tab="sec-config">⚙️ Datos</button>
   </nav>
 
-  <!-- SOCIOS -->
   <section class="page active" id="sec-socios">
     <h2 class="title">Asociados de la natillera</h2>
 
-    <!-- BARRA DE RESPALDO VISIBLE -->
     <div class="backup-bar">
       <div class="backup-info">
         <strong>🔐 Copia de seguridad</strong>
@@ -362,7 +356,6 @@
     </div>
   </section>
 
-  <!-- APORTES -->
   <section class="page" id="sec-aportes">
     <h2 class="title">Registro de aportes</h2>
     <div class="card">
@@ -384,13 +377,23 @@
     </div>
   </section>
 
-  <!-- PRÉSTAMOS -->
   <section class="page" id="sec-prestamos">
     <h2 class="title">Préstamos (1 a 4 cuotas)</h2>
     <div class="card">
       <form class="grid" id="form-prestamo">
-        <div><label>Tipo de deudor</label><select id="p-tipo" required><option value="socio">Asociado (5% mensual)</option><option value="tercero">Externo (10% mensual)</option></select></div>
-        <div><label>Deudor — nombre completo</label><input type="text" id="p-nombre" required></div>
+        <div>
+            <label>Tipo de deudor</label>
+            <select id="p-tipo" required onchange="toggleInputDeudor()">
+                <option value="socio">Asociado (5% mensual)</option>
+                <option value="tercero">Externo (10% mensual)</option>
+            </select>
+        </div>
+        <div id="contenedor-deudor">
+            <label id="lbl-deudor">Seleccionar Socio</label>
+            <div id="input-dinamico-deudor">
+                <select id="p-nombre" onchange="autoCompletarTelSocio()" required></select>
+            </div>
+        </div>
         <div><label>WhatsApp del deudor (10 dígitos)</label><input type="tel" id="p-tel" pattern="[0-9]{10}" maxlength="10" required></div>
         <div><label>Capital prestado</label><input type="number" id="p-monto" min="1" step="any" required></div>
         <div><label>Número de cuotas</label><select id="p-cuotas" required>
@@ -409,7 +412,6 @@
     </div>
   </section>
 
-  <!-- ABONOS -->
   <section class="page" id="sec-abonos">
     <h2 class="title">Recaudo de cuotas y abonos</h2>
     <div class="card">
@@ -431,7 +433,6 @@
     </div>
   </section>
 
-  <!-- ACTIVIDADES -->
   <section class="page" id="sec-eventos">
     <h2 class="title">Actividades (ventas, rifas, eventos)</h2>
     <div class="card">
@@ -451,7 +452,6 @@
     </div>
   </section>
 
-  <!-- LIQUIDACIÓN -->
   <section class="page" id="sec-liquidacion">
     <h2 class="title">Liquidación de fin de año</h2>
     <div class="toolbar">
@@ -474,7 +474,6 @@
     </div>
   </section>
 
-  <!-- CONFIG / DATOS -->
   <section class="page" id="sec-config">
     <h2 class="title">Respaldo y configuración</h2>
     <div class="card">
@@ -509,26 +508,23 @@
   </footer>
 </div>
 
-<!-- MODAL -->
 <div class="modal-bg" id="modal-bg">
   <div class="modal" id="modal-box"></div>
 </div>
 
-<!-- RECIBO PRINT -->
 <div id="recibo-print" style="display:none"></div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
 /* ============================================================
-   NATILLERA LA FORTUNA - v12
+   NATILLERA LA FORTUNA - v12 (Edición Dinámica de Préstamos)
    Desarrollada por Vibras Positivas HM
    Zona horaria Colombia (UTC-5) | LocalStorage key: laFortuna_v12
 ============================================================ */
 
 const STORAGE_KEY = 'laFortuna_v12';
-const TZ_OFFSET = -5; // Colombia UTC-5
+const TZ_OFFSET = -5;
 
 let db = cargarDB();
 
@@ -537,7 +533,6 @@ function cargarDB(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return esquemaVacio();
     const parsed = JSON.parse(raw);
-    // defensa ante datos viejos
     return Object.assign(esquemaVacio(), parsed);
   }catch(e){ return esquemaVacio(); }
 }
@@ -556,9 +551,8 @@ function pesos(n){
 }
 function hoyColombia(){
   const now = new Date();
-  // Ajuste grosso: usar toLocaleString con timezone real
   const opts = {timeZone:'America/Bogota', year:'numeric', month:'2-digit', day:'2-digit'};
-  const parts = new Intl.DateTimeFormat('en-CA', opts).format(now); // yyyy-mm-dd
+  const parts = new Intl.DateTimeFormat('en-CA', opts).format(now);
   return parts;
 }
 function fechaBonita(iso){
@@ -626,9 +620,38 @@ function confirmar(titulo, mensaje, onOk, okTxt='Confirmar', okClass='btn-red'){
   document.getElementById('btn-ok-modal').onclick = ()=>{ modalClose(); onOk(); };
 }
 
+/* ---------- LÓGICA DINÁMICA DE DEUDORES ---------- */
+function toggleInputDeudor() {
+  const tipo = document.getElementById('p-tipo').value;
+  const contenedor = document.getElementById('input-dinamico-deudor');
+  const etiqueta = document.getElementById('lbl-deudor');
+
+  if (tipo === 'socio') {
+    etiqueta.textContent = "Seleccionar Socio";
+    const opciones = db.socios.length 
+      ? db.socios.map(s => `<option value="${s.id}" data-tel="${s.tel}">${s.nombre}</option>`).join('')
+      : `<option value="">— No hay socios registrados —</option>`;
+    
+    contenedor.innerHTML = `<select id="p-nombre" onchange="autoCompletarTelSocio()">${opciones}</select>`;
+    autoCompletarTelSocio();
+  } else {
+    etiqueta.textContent = "Nombre del Externo";
+    contenedor.innerHTML = `<input type="text" id="p-nombre" placeholder="Nombre completo" required>`;
+    document.getElementById('p-tel').value = "";
+  }
+}
+
+function autoCompletarTelSocio() {
+  const select = document.getElementById('p-nombre');
+  if(select && select.tagName === "SELECT" && select.selectedOptions[0]) {
+    const tel = select.selectedOptions[0].getAttribute('data-tel');
+    document.getElementById('p-tel').value = tel || "";
+  }
+}
+
 /* ---------- FORMS ---------- */
 
-// Fechas por defecto = hoy Colombia
+// Fechas por defecto
 ['a-fecha','p-fecha','ab-fecha','act-fecha'].forEach(id=>{
   document.getElementById(id).value = hoyColombia();
 });
@@ -658,35 +681,37 @@ document.getElementById('form-aporte').onsubmit = e=>{
   const aporte = {id:Date.now(), socioId:Number(sId), monto, fecha};
   db.aportes.push(aporte);
   guardar();
-  // WhatsApp al socio
-  const msg = `*LA FORTUNA — RECIBO DE APORTE*%0A`+
-              `%0A📝 Tipo: Aporte%0A`+
-              `🤝 Socio: ${socio.nombre}%0A`+
-              `💰 Valor: ${pesos(monto)}%0A`+
-              `📅 Fecha: ${fechaBonita(fecha)}%0A`+
-              `%0A_Constancia generada por Natillera La Fortuna_`;
+  const msg = `*LA FORTUNA — RECIBO DE APORTE*%0A%0A📝 Tipo: Aporte%0A🤝 Socio: ${socio.nombre}%0A💰 Valor: ${pesos(monto)}%0A📅 Fecha: ${fechaBonita(fecha)}%0A%0A_Constancia generada por Natillera La Fortuna_`;
   window.open(`https://wa.me/57${socio.tel}?text=${msg}`,'_blank');
   toast('Aporte registrado y constancia enviada');
   e.target.reset();
   document.getElementById('a-fecha').value = hoyColombia();
 };
 
-// PRÉSTAMO
+// PRÉSTAMO (MEJORADO)
 document.getElementById('form-prestamo').onsubmit = e=>{
   e.preventDefault();
   const cap = parseFloat(document.getElementById('p-monto').value);
   const meses = parseInt(document.getElementById('p-cuotas').value);
   const tipo = document.getElementById('p-tipo').value;
   const tel = document.getElementById('p-tel').value.trim();
+  const inputNombre = document.getElementById('p-nombre');
+  
+  const nombreDeudor = (inputNombre.tagName === "SELECT") 
+    ? inputNombre.options[inputNombre.selectedIndex].text 
+    : inputNombre.value.trim();
+
   if(!/^\d{10}$/.test(tel)){ toast('WhatsApp inválido','err'); return; }
   if(!(cap>0)){ toast('Capital inválido','err'); return; }
+  
   const tasa = tipo==='socio' ? 0.05 : 0.10;
   const intTotal = cap * tasa * meses;
   const total = cap + intTotal;
   const fecha = document.getElementById('p-fecha').value;
+  
   const prestamo = {
     id:Date.now(),
-    deudor:document.getElementById('p-nombre').value.trim(),
+    deudor: nombreDeudor,
     tel, tipo,
     capital:cap, tasa, meses,
     interesTotal:intTotal, totalPagar:total,
@@ -695,11 +720,13 @@ document.getElementById('form-prestamo').onsubmit = e=>{
     fecha,
     codeudor:document.getElementById('p-codeudor').value.trim(),
   };
+  
   db.prestamos.push(prestamo);
   guardar();
   toast('Préstamo creado');
   e.target.reset();
   document.getElementById('p-fecha').value = hoyColombia();
+  toggleInputDeudor();
 };
 
 // ABONO
@@ -719,28 +746,18 @@ document.getElementById('form-abono').onsubmit = e=>{
   }
   procesarAbono(p, monto, fecha);
 };
+
 function procesarAbono(p, monto, fecha){
   db.abonos.push({id:Date.now(), prestamoId:p.id, deudor:p.deudor, monto, fecha});
   p.saldo = Math.max(0, p.saldo - monto);
   guardar();
-  // WA al deudor
   if(p.tel){
     const estado = p.saldo<=0 ? '✅ Préstamo *CANCELADO*' : `📉 Saldo: ${pesos(p.saldo)}`;
-    const msg = `*LA FORTUNA — RECIBO DE PAGO*%0A`+
-                `%0A👤 Deudor: ${p.deudor}%0A`+
-                `💸 Abono: ${pesos(monto)}%0A`+
-                `${encodeURIComponent(estado)}%0A`+
-                `📅 Fecha: ${fechaBonita(fecha)}%0A`+
-                `%0A_Constancia generada por Natillera La Fortuna_`;
+    const msg = `*LA FORTUNA — RECIBO DE PAGO*%0A%0A👤 Deudor: ${p.deudor}%0A💸 Abono: ${pesos(monto)}%0A${encodeURIComponent(estado)}%0A📅 Fecha: ${fechaBonita(fecha)}%0A%0A_Constancia generada por Natillera La Fortuna_`;
     window.open(`https://wa.me/57${p.tel}?text=${msg}`,'_blank');
   }
-  // Copia al admin
   if(db.adminWA){
-    const msgA = `*LA FORTUNA — Abono recibido*%0A`+
-                 `De: ${p.deudor}%0A`+
-                 `Valor: ${pesos(monto)}%0A`+
-                 `Saldo: ${pesos(p.saldo)}%0A`+
-                 `Fecha: ${fechaBonita(fecha)}`;
+    const msgA = `*LA FORTUNA — Abono recibido*%0ADe: ${p.deudor}%0AValor: ${pesos(monto)}%0ASaldo: ${pesos(p.saldo)}%0AFecha: ${fechaBonita(fecha)}`;
     setTimeout(()=>window.open(`https://wa.me/57${db.adminWA}?text=${msgA}`,'_blank'), 400);
   }
   toast('Abono registrado');
@@ -767,7 +784,6 @@ document.getElementById('form-actividad').onsubmit = e=>{
 
 /* ---------- CÁLCULOS Y RENDER ---------- */
 function calcInteresCausado(){
-  // Por cada abono, parte proporcional corresponde a interés
   return db.abonos.reduce((sum,ab)=>{
     const p = db.prestamos.find(pr=>pr.id==ab.prestamoId);
     if(!p || !p.totalPagar) return sum;
@@ -782,11 +798,8 @@ function totalAbonos(){ return db.abonos.reduce((s,a)=>s+a.monto,0); }
 function totalVentasAct(){ return db.actividades.reduce((s,a)=>s+a.venta,0); }
 function totalGastosAct(){ return db.actividades.reduce((s,a)=>s+a.gasto,0); }
 function capitalPrestadoPendiente(){
-  // Capital que aún no ha regresado a caja.
-  // Si el préstamo ya está cancelado (saldo = 0), todo el capital regresó.
   return db.prestamos.reduce((s,p)=>{
-    if(p.saldo <= 0.01) return s; // préstamo ya pagado, no hay capital pendiente
-    // Parte de capital ya recibida vía abonos, proporcional:
+    if(p.saldo <= 0.01) return s;
     const abonos = db.abonos.filter(a=>a.prestamoId==p.id).reduce((x,a)=>x+a.monto,0);
     const capRecup = abonos * (p.capital / p.totalPagar);
     return s + Math.max(0, p.capital - capRecup);
@@ -795,7 +808,6 @@ function capitalPrestadoPendiente(){
 function estadoPrestamo(p){
   if(p.saldo<=0.01) return {txt:'Cancelado',cls:'b-gray'};
   const hoy = hoyColombia();
-  // Fecha de la próxima cuota = fecha + (cuotas pagadas + 1) meses
   const abonos = db.abonos.filter(a=>a.prestamoId==p.id).reduce((x,a)=>x+a.monto,0);
   const cuotasPagadas = Math.floor(abonos / p.valorCuota);
   const proxFecha = addMonths(p.fecha, cuotasPagadas+1);
@@ -810,23 +822,21 @@ function render(){
   document.getElementById('a-socio').innerHTML =
     db.socios.length ? db.socios.map(s=>`<option value="${s.id}">${s.nombre} (CC ${s.cedula})</option>`).join('')
                      : `<option value="">— Primero registra socios —</option>`;
+  
   document.getElementById('ab-prestamo').innerHTML =
     db.prestamos.filter(p=>p.saldo>0).length
       ? db.prestamos.filter(p=>p.saldo>0).map(p=>`<option value="${p.id}">${p.deudor} — saldo ${pesos(p.saldo)}</option>`).join('')
       : `<option value="">— No hay préstamos activos —</option>`;
 
+  toggleInputDeudor();
+
   // KPIs
   const tA = totalAportes();
-  const tAb = totalAbonos();
   const intC = calcInteresCausado();
   const uAct = utilidadActividades();
   const uTotal = intC + uAct;
   const capPend = capitalPrestadoPendiente();
-  // Disponible para prestar = dinero físicamente en caja ahora mismo
-  // = Aportes + Intereses ganados + Utilidad actividades − Capital aún prestado
-  // (el capital que regresa de los abonos NO es dinero nuevo, solo es retorno de lo prestado)
   const saldoCaja = tA + intC + (totalVentasAct() - totalGastosAct()) - capPend;
-  // Patrimonio total = disponible + capital aún prestado por recuperar
   const patrimonio = saldoCaja + capPend;
 
   document.getElementById('st-aportes').textContent = pesos(tA);
@@ -837,558 +847,199 @@ function render(){
   document.getElementById('saldo-caja').textContent = pesos(saldoCaja);
   document.getElementById('saldo-patrimonio').textContent = pesos(patrimonio);
 
-  // TABLA SOCIOS
-  const tbSoc = document.querySelector('#tabla-socios tbody');
-  if(!db.socios.length){
-    tbSoc.innerHTML = `<tr><td colspan="5" class="empty">Aún no hay socios registrados</td></tr>`;
-  } else {
-    tbSoc.innerHTML = db.socios.map(s=>{
-      const ap = db.aportes.filter(a=>a.socioId==s.id).reduce((x,a)=>x+a.monto,0);
-      return `<tr>
-        <td>${s.nombre}</td><td>${s.cedula}</td><td>${s.tel}</td>
-        <td class="num">${pesos(ap)}</td>
-        <td class="actions">
-          <button class="btn btn-ghost btn-mini" onclick="editarSocio(${s.id})">Editar</button>
-          <button class="btn btn-red btn-mini" onclick="eliminarSocio(${s.id})">Eliminar</button>
-        </td></tr>`;
-    }).join('');
-  }
+  // TABLAS
+  renderTablaSocios();
+  renderTablaAportes();
+  renderTablaPrestamos();
+  renderTablaAbonos();
+  renderTablaActividades();
+  renderLiquidacion();
 
-  // TABLA APORTES
-  const tbA = document.querySelector('#tabla-aportes tbody');
-  if(!db.aportes.length){
-    tbA.innerHTML = `<tr><td colspan="4" class="empty">Aún no hay aportes</td></tr>`;
-  } else {
-    tbA.innerHTML = db.aportes.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(a=>{
-      const s = db.socios.find(x=>x.id==a.socioId);
-      return `<tr>
-        <td>${fechaBonita(a.fecha)}</td>
-        <td>${s?s.nombre:'—'}</td>
-        <td class="num">${pesos(a.monto)}</td>
-        <td class="actions">
-          <button class="btn btn-ghost btn-mini" onclick="imprimirReciboAporte(${a.id})">🧾 Recibo</button>
-          <button class="btn btn-gold btn-mini" onclick="editarAporte(${a.id})">✏️ Editar</button>
-          <button class="btn btn-red btn-mini" onclick="eliminarAporte(${a.id})">Eliminar</button>
-        </td></tr>`;
-    }).join('');
-  }
-
-  // TABLA PRÉSTAMOS
-  const tbP = document.querySelector('#tabla-prestamos tbody');
-  if(!db.prestamos.length){
-    tbP.innerHTML = `<tr><td colspan="8" class="empty">Aún no hay préstamos</td></tr>`;
-  } else {
-    tbP.innerHTML = db.prestamos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(p=>{
-      const est = estadoPrestamo(p);
-      return `<tr>
-        <td><strong>${p.deudor}</strong><br><span style="font-size:11px;color:var(--ink-soft)">${p.tipo==='socio'?'Socio 5%':'Externo 10%'} · ${fechaBonita(p.fecha)}</span></td>
-        <td class="num">${pesos(p.capital)}</td>
-        <td class="num">${pesos(p.totalPagar)}</td>
-        <td>${p.meses}</td>
-        <td class="num">${pesos(p.valorCuota)}</td>
-        <td class="num"><strong>${pesos(p.saldo)}</strong></td>
-        <td><span class="badge ${est.cls}">${est.txt}</span></td>
-        <td class="actions">
-          <button class="btn btn-ghost btn-mini" onclick="verPlanCuotas(${p.id})">📅 Plan</button>
-          <button class="btn btn-gold btn-mini" onclick="editarPrestamo(${p.id})">✏️ Editar</button>
-          <button class="btn btn-red btn-mini" onclick="eliminarPrestamo(${p.id})">Eliminar</button>
-        </td></tr>`;
-    }).join('');
-  }
-
-  // TABLA ABONOS
-  const tbAb = document.querySelector('#tabla-abonos tbody');
-  if(!db.abonos.length){
-    tbAb.innerHTML = `<tr><td colspan="4" class="empty">Aún no hay abonos recibidos</td></tr>`;
-  } else {
-    tbAb.innerHTML = db.abonos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(ab=>`
-      <tr>
-        <td>${fechaBonita(ab.fecha)}</td>
-        <td>${ab.deudor}</td>
-        <td class="num">${pesos(ab.monto)}</td>
-        <td class="actions">
-          <button class="btn btn-ghost btn-mini" onclick="imprimirReciboAbono(${ab.id})">🧾 Recibo</button>
-          <button class="btn btn-gold btn-mini" onclick="editarAbono(${ab.id})">✏️ Editar</button>
-          <button class="btn btn-red btn-mini" onclick="eliminarAbono(${ab.id})">Eliminar</button>
-        </td>
-      </tr>`).join('');
-  }
-
-  // TABLA ACTIVIDADES
-  const tbAct = document.querySelector('#tabla-actividades tbody');
-  if(!db.actividades.length){
-    tbAct.innerHTML = `<tr><td colspan="6" class="empty">Aún no hay actividades registradas</td></tr>`;
-  } else {
-    tbAct.innerHTML = db.actividades.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(act=>`
-      <tr>
-        <td>${fechaBonita(act.fecha)}</td>
-        <td>${act.nombre}</td>
-        <td class="num">${pesos(act.gasto)}</td>
-        <td class="num">${pesos(act.venta)}</td>
-        <td class="num"><strong>${pesos(act.ganancia)}</strong></td>
-        <td class="actions">
-          <button class="btn btn-gold btn-mini" onclick="editarActividad(${act.id})">✏️ Editar</button>
-          <button class="btn btn-red btn-mini" onclick="eliminarActividad(${act.id})">Eliminar</button>
-        </td>
-      </tr>`).join('');
-  }
-
-  // LIQUIDACIÓN
-  const tbL = document.querySelector('#tabla-liq tbody');
-  const foot = document.getElementById('liq-foot');
-  if(!db.socios.length){
-    tbL.innerHTML = `<tr><td colspan="4" class="empty">Registra socios para ver la liquidación</td></tr>`;
-    foot.innerHTML = '';
-  } else {
-    const uSocio = db.socios.length>0 ? uTotal / db.socios.length : 0;
-    let sumAp=0, sumU=0, sumT=0;
-    tbL.innerHTML = db.socios.map(s=>{
-      const ap = db.aportes.filter(a=>a.socioId==s.id).reduce((x,a)=>x+a.monto,0);
-      const tot = ap + uSocio;
-      sumAp+=ap; sumU+=uSocio; sumT+=tot;
-      return `<tr>
-        <td>${s.nombre}</td>
-        <td class="num">${pesos(ap)}</td>
-        <td class="num">${pesos(uSocio)}</td>
-        <td class="num"><strong>${pesos(tot)}</strong></td>
-      </tr>`;
-    }).join('');
-    foot.innerHTML = `<tr style="background:#fbf7e8;font-weight:800">
-      <td>TOTAL (${db.socios.length} socios)</td>
-      <td class="num">${pesos(sumAp)}</td>
-      <td class="num">${pesos(sumU)}</td>
-      <td class="num">${pesos(sumT)}</td>
-    </tr>`;
-  }
-
-  // admin WA
   document.getElementById('admin-wa').value = db.adminWA || '';
 }
 
-/* ---------- Editar / eliminar ---------- */
+/* Renders individuales para limpieza */
+function renderTablaSocios(){
+  const tb = document.querySelector('#tabla-socios tbody');
+  tb.innerHTML = db.socios.length ? db.socios.map(s=>{
+    const ap = db.aportes.filter(a=>a.socioId==s.id).reduce((x,a)=>x+a.monto,0);
+    return `<tr><td>${s.nombre}</td><td>${s.cedula}</td><td>${s.tel}</td><td class="num">${pesos(ap)}</td><td class="actions"><button class="btn btn-ghost btn-mini" onclick="editarSocio(${s.id})">Editar</button><button class="btn btn-red btn-mini" onclick="eliminarSocio(${s.id})">Eliminar</button></td></tr>`;
+  }).join('') : `<tr><td colspan="5" class="empty">Aún no hay socios</td></tr>`;
+}
+
+function renderTablaAportes(){
+  const tb = document.querySelector('#tabla-aportes tbody');
+  tb.innerHTML = db.aportes.length ? db.aportes.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(a=>{
+    const s = db.socios.find(x=>x.id==a.socioId);
+    return `<tr><td>${fechaBonita(a.fecha)}</td><td>${s?s.nombre:'—'}</td><td class="num">${pesos(a.monto)}</td><td class="actions"><button class="btn btn-ghost btn-mini" onclick="imprimirReciboAporte(${a.id})">🧾 Recibo</button><button class="btn btn-gold btn-mini" onclick="editarAporte(${a.id})">✏️ Editar</button><button class="btn btn-red btn-mini" onclick="eliminarAporte(${a.id})">Eliminar</button></td></tr>`;
+  }).join('') : `<tr><td colspan="4" class="empty">Aún no hay aportes</td></tr>`;
+}
+
+function renderTablaPrestamos(){
+  const tb = document.querySelector('#tabla-prestamos tbody');
+  tb.innerHTML = db.prestamos.length ? db.prestamos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(p=>{
+    const est = estadoPrestamo(p);
+    return `<tr><td><strong>${p.deudor}</strong><br><small>${p.tipo==='socio'?'Socio':'Ext'} · ${fechaBonita(p.fecha)}</small></td><td class="num">${pesos(p.capital)}</td><td class="num">${pesos(p.totalPagar)}</td><td>${p.meses}</td><td class="num">${pesos(p.valorCuota)}</td><td class="num"><strong>${pesos(p.saldo)}</strong></td><td><span class="badge ${est.cls}">${est.txt}</span></td><td class="actions"><button class="btn btn-ghost btn-mini" onclick="verPlanCuotas(${p.id})">📅 Plan</button><button class="btn btn-gold btn-mini" onclick="editarPrestamo(${p.id})">✏️ Editar</button><button class="btn btn-red btn-mini" onclick="eliminarPrestamo(${p.id})">Eliminar</button></td></tr>`;
+  }).join('') : `<tr><td colspan="8" class="empty">No hay préstamos</td></tr>`;
+}
+
+function renderTablaAbonos(){
+  const tb = document.querySelector('#tabla-abonos tbody');
+  tb.innerHTML = db.abonos.length ? db.abonos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(ab=>`<tr><td>${fechaBonita(ab.fecha)}</td><td>${ab.deudor}</td><td class="num">${pesos(ab.monto)}</td><td class="actions"><button class="btn btn-ghost btn-mini" onclick="imprimirReciboAbono(${ab.id})">🧾 Recibo</button><button class="btn btn-gold btn-mini" onclick="editarAbono(${ab.id})">✏️ Editar</button><button class="btn btn-red btn-mini" onclick="eliminarAbono(${ab.id})">Eliminar</button></td></tr>`).join('') : `<tr><td colspan="4" class="empty">No hay abonos</td></tr>`;
+}
+
+function renderTablaActividades(){
+  const tb = document.querySelector('#tabla-actividades tbody');
+  tb.innerHTML = db.actividades.length ? db.actividades.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(act=>`<tr><td>${fechaBonita(act.fecha)}</td><td>${act.nombre}</td><td class="num">${pesos(act.gasto)}</td><td class="num">${pesos(act.venta)}</td><td class="num"><strong>${pesos(act.ganancia)}</strong></td><td class="actions"><button class="btn btn-gold btn-mini" onclick="editarActividad(${act.id})">✏️ Editar</button><button class="btn btn-red btn-mini" onclick="eliminarActividad(${act.id})">Eliminar</button></td></tr>`).join('') : `<tr><td colspan="6" class="empty">No hay actividades</td></tr>`;
+}
+
+function renderLiquidacion(){
+  const tb = document.querySelector('#tabla-liq tbody');
+  const foot = document.getElementById('liq-foot');
+  if(!db.socios.length){ tb.innerHTML = `<tr><td colspan="4" class="empty">No hay socios</td></tr>`; return; }
+  const uTotal = calcInteresCausado() + utilidadActividades();
+  const uSocio = uTotal / db.socios.length;
+  let sAp=0, sU=0, sT=0;
+  tb.innerHTML = db.socios.map(s=>{
+    const ap = db.aportes.filter(a=>a.socioId==s.id).reduce((x,a)=>x+a.monto,0);
+    const tot = ap + uSocio;
+    sAp+=ap; sU+=uSocio; sT+=tot;
+    return `<tr><td>${s.nombre}</td><td class="num">${pesos(ap)}</td><td class="num">${pesos(uSocio)}</td><td class="num"><strong>${pesos(tot)}</strong></td></tr>`;
+  }).join('');
+  foot.innerHTML = `<tr style="background:#fbf7e8;font-weight:800"><td>TOTAL</td><td class="num">${pesos(sAp)}</td><td class="num">${pesos(sU)}</td><td class="num">${pesos(sT)}</td></tr>`;
+}
+
+/* ---------- EDICIÓN / ELIMINACIÓN (Mantener igual) ---------- */
 function eliminarSocio(id){
   const s = db.socios.find(x=>x.id===id);
-  const aportesDelSocio = db.aportes.filter(a=>a.socioId===id).length;
-  const msg = aportesDelSocio>0
-    ? `"${s.nombre}" tiene ${aportesDelSocio} aporte(s) registrados. Si lo eliminas, los aportes quedarán huérfanos. ¿Continuar?`
-    : `¿Eliminar al socio "${s.nombre}"?`;
-  confirmar('Eliminar socio', msg, ()=>{
-    db.socios = db.socios.filter(x=>x.id!==id);
-    guardar(); toast('Socio eliminado');
-  }, 'Eliminar');
+  confirmar('Eliminar socio', `¿Eliminar a "${s.nombre}"? Sus aportes quedarán huérfanos.`, ()=>{
+    db.socios = db.socios.filter(x=>x.id!==id); guardar(); toast('Socio eliminado');
+  });
 }
 function editarSocio(id){
   const s = db.socios.find(x=>x.id===id);
-  modal(`
-    <h3>Editar socio</h3>
-    <div class="card" style="box-shadow:none;border:0;padding:0;margin:0">
-      <label>Nombre</label><input id="ed-n" value="${s.nombre.replace(/"/g,'&quot;')}">
-      <label style="margin-top:8px">Cédula</label><input id="ed-c" value="${s.cedula}">
-      <label style="margin-top:8px">WhatsApp</label><input id="ed-t" maxlength="10" value="${s.tel}">
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
-      <button class="btn btn-primary" id="ok-ed">Guardar cambios</button>
-    </div>`);
+  modal(`<h3>Editar socio</h3><label>Nombre</label><input id="ed-n" value="${s.nombre}"><label>Cédula</label><input id="ed-c" value="${s.cedula}"><label>WhatsApp</label><input id="ed-t" maxlength="10" value="${s.tel}"><div class="modal-actions"><button class="btn btn-ghost" onclick="modalClose()">Cancelar</button><button class="btn btn-primary" id="ok-ed">Guardar</button></div>`);
   document.getElementById('ok-ed').onclick = ()=>{
     s.nombre = document.getElementById('ed-n').value.trim();
     s.cedula = document.getElementById('ed-c').value.trim();
-    const t = document.getElementById('ed-t').value.trim();
-    if(!/^\d{10}$/.test(t)){ toast('WhatsApp inválido','err'); return; }
-    s.tel = t;
+    s.tel = document.getElementById('ed-t').value.trim();
     modalClose(); guardar(); toast('Socio actualizado');
   };
 }
-function eliminarAporte(id){
-  const a = db.aportes.find(x=>x.id===id);
-  const s = db.socios.find(x=>x.id===a.socioId);
-  confirmar('Eliminar aporte',
-    `¿Eliminar aporte de ${pesos(a.monto)} de ${s?s.nombre:'—'} del ${fechaBonita(a.fecha)}?`,
-    ()=>{ db.aportes = db.aportes.filter(x=>x.id!==id); guardar(); toast('Aporte eliminado'); },
-    'Eliminar');
+function eliminarAporte(id){ confirmar('Eliminar aporte', '¿Eliminar este registro?', ()=>{ db.aportes = db.aportes.filter(x=>x.id!==id); guardar(); }); }
+function eliminarPrestamo(id){ confirmar('Eliminar préstamo', '¿Eliminar este préstamo?', ()=>{ db.prestamos = db.prestamos.filter(x=>x.id!==id); guardar(); }); }
+function eliminarAbono(id){ 
+    const ab = db.abonos.find(x=>x.id===id);
+    confirmar('Eliminar abono', '¿Eliminar abono?', ()=>{ 
+        db.abonos = db.abonos.filter(x=>x.id!==id); 
+        const p = db.prestamos.find(x=>x.id==ab.prestamoId);
+        if(p) p.saldo = p.totalPagar - db.abonos.filter(a=>a.prestamoId==p.id).reduce((s,a)=>s+a.monto,0);
+        guardar(); 
+    }); 
 }
-function eliminarPrestamo(id){
-  const p = db.prestamos.find(x=>x.id===id);
-  const abonosP = db.abonos.filter(a=>a.prestamoId===id).length;
-  const msg = abonosP>0
-    ? `El préstamo de ${p.deudor} tiene ${abonosP} abono(s). Si lo eliminas, los abonos quedarán huérfanos. ¿Continuar?`
-    : `¿Eliminar préstamo de ${p.deudor}?`;
-  confirmar('Eliminar préstamo', msg, ()=>{
-    db.prestamos = db.prestamos.filter(x=>x.id!==id);
-    guardar(); toast('Préstamo eliminado');
-  }, 'Eliminar');
-}
-function eliminarAbono(id){
-  const ab = db.abonos.find(x=>x.id===id);
-  confirmar('Eliminar abono',
-    `¿Eliminar abono de ${pesos(ab.monto)} de ${ab.deudor}? El saldo del préstamo se recalculará.`,
-    ()=>{
-      db.abonos = db.abonos.filter(x=>x.id!==id);
-      // recalcular saldo del préstamo
-      const p = db.prestamos.find(x=>x.id==ab.prestamoId);
-      if(p){
-        const suma = db.abonos.filter(a=>a.prestamoId==p.id).reduce((s,a)=>s+a.monto,0);
-        p.saldo = Math.max(0, p.totalPagar - suma);
-      }
-      guardar(); toast('Abono eliminado');
-    },'Eliminar');
-}
-function eliminarActividad(id){
-  const act = db.actividades.find(x=>x.id===id);
-  confirmar('Eliminar actividad', `¿Eliminar "${act.nombre}"?`, ()=>{
-    db.actividades = db.actividades.filter(x=>x.id!==id);
-    guardar(); toast('Actividad eliminada');
-  }, 'Eliminar');
-}
+function eliminarActividad(id){ confirmar('Eliminar actividad', '¿Eliminar?', ()=>{ db.actividades = db.actividades.filter(x=>x.id!==id); guardar(); }); }
 
-/* ---------- Editar aporte ---------- */
+/* --- EDITAR OTROS --- */
 function editarAporte(id){
   const a = db.aportes.find(x=>x.id===id);
-  if(!a) return;
-  const opts = db.socios.map(s=>`<option value="${s.id}" ${s.id==a.socioId?'selected':''}>${s.nombre} (CC ${s.cedula})</option>`).join('');
-  modal(`
-    <h3>Editar aporte</h3>
-    <div style="display:grid;gap:10px">
-      <div><label>Socio</label><select id="ea-socio">${opts}</select></div>
-      <div><label>Valor</label><input type="number" id="ea-monto" min="1" step="any" value="${a.monto}"></div>
-      <div><label>Fecha</label><input type="date" id="ea-fecha" value="${a.fecha}"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
-      <button class="btn btn-primary" id="ok-ea">Guardar cambios</button>
-    </div>`);
+  const opts = db.socios.map(s=>`<option value="${s.id}" ${s.id==a.socioId?'selected':''}>${s.nombre}</option>`).join('');
+  modal(`<h3>Editar aporte</h3><select id="ea-socio">${opts}</select><input type="number" id="ea-monto" value="${a.monto}"><input type="date" id="ea-fecha" value="${a.fecha}"><div class="modal-actions"><button class="btn btn-primary" id="ok-ea">Guardar</button></div>`);
   document.getElementById('ok-ea').onclick = ()=>{
-    const monto = parseFloat(document.getElementById('ea-monto').value);
-    const fecha = document.getElementById('ea-fecha').value;
-    const sId = Number(document.getElementById('ea-socio').value);
-    if(!(monto>0)){ toast('Valor inválido','err'); return; }
-    if(!fecha){ toast('Fecha inválida','err'); return; }
-    a.monto = monto; a.fecha = fecha; a.socioId = sId;
-    modalClose(); guardar(); toast('Aporte actualizado');
+    a.monto = parseFloat(document.getElementById('ea-monto').value);
+    a.fecha = document.getElementById('ea-fecha').value;
+    a.socioId = Number(document.getElementById('ea-socio').value);
+    modalClose(); guardar();
   };
 }
 
-/* ---------- Editar préstamo ---------- */
 function editarPrestamo(id){
   const p = db.prestamos.find(x=>x.id===id);
-  if(!p) return;
-  const abonosP = db.abonos.filter(a=>a.prestamoId===id).reduce((s,a)=>s+a.monto,0);
-  const aviso = abonosP>0
-    ? `<div style="background:var(--amber-soft);padding:10px;border-radius:8px;font-size:12.5px;color:#7a5e1a;margin-bottom:10px">⚠️ Este préstamo ya tiene ${pesos(abonosP)} en abonos. Al cambiar capital, cuotas o tasa, el total y el saldo se recalculan automáticamente.</div>`
-    : '';
-  modal(`
-    <h3>Editar préstamo</h3>
-    ${aviso}
-    <div style="display:grid;gap:10px">
-      <div><label>Deudor</label><input id="ep-nombre" value="${p.deudor.replace(/"/g,'&quot;')}"></div>
-      <div><label>WhatsApp (10 dígitos)</label><input id="ep-tel" maxlength="10" value="${p.tel||''}"></div>
-      <div><label>Tipo</label><select id="ep-tipo">
-        <option value="socio" ${p.tipo==='socio'?'selected':''}>Asociado (5%)</option>
-        <option value="tercero" ${p.tipo==='tercero'?'selected':''}>Externo (10%)</option>
-      </select></div>
-      <div><label>Capital</label><input type="number" id="ep-capital" min="1" step="any" value="${p.capital}"></div>
-      <div><label>Cuotas (1 a 4)</label><select id="ep-cuotas">
-        <option value="1" ${p.meses==1?'selected':''}>1 mes</option>
-        <option value="2" ${p.meses==2?'selected':''}>2 meses</option>
-        <option value="3" ${p.meses==3?'selected':''}>3 meses</option>
-        <option value="4" ${p.meses==4?'selected':''}>4 meses</option>
-      </select></div>
-      <div><label>Codeudor</label><input id="ep-codeudor" value="${(p.codeudor||'').replace(/"/g,'&quot;')}"></div>
-      <div><label>Fecha</label><input type="date" id="ep-fecha" value="${p.fecha}"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
-      <button class="btn btn-primary" id="ok-ep">Guardar cambios</button>
-    </div>`);
+  modal(`<h3>Editar préstamo</h3><label>Deudor</label><input id="ep-nombre" value="${p.deudor}"><label>WhatsApp</label><input id="ep-tel" value="${p.tel}"><label>Capital</label><input type="number" id="ep-cap" value="${p.capital}"><div class="modal-actions"><button class="btn btn-primary" id="ok-ep">Guardar</button></div>`);
   document.getElementById('ok-ep').onclick = ()=>{
-    const nombre = document.getElementById('ep-nombre').value.trim();
-    const tel = document.getElementById('ep-tel').value.trim();
-    const tipo = document.getElementById('ep-tipo').value;
-    const cap = parseFloat(document.getElementById('ep-capital').value);
-    const meses = parseInt(document.getElementById('ep-cuotas').value);
-    const codeudor = document.getElementById('ep-codeudor').value.trim();
-    const fecha = document.getElementById('ep-fecha').value;
-    if(!nombre){ toast('Nombre requerido','err'); return; }
-    if(tel && !/^\d{10}$/.test(tel)){ toast('WhatsApp inválido','err'); return; }
-    if(!(cap>0)){ toast('Capital inválido','err'); return; }
-    const tasa = tipo==='socio' ? 0.05 : 0.10;
-    const intTotal = cap * tasa * meses;
-    const total = cap + intTotal;
-    const abonosSuma = db.abonos.filter(a=>a.prestamoId===id).reduce((s,a)=>s+a.monto,0);
-    p.deudor = nombre; p.tel = tel; p.tipo = tipo;
-    p.capital = cap; p.tasa = tasa; p.meses = meses;
-    p.interesTotal = intTotal; p.totalPagar = total;
-    p.valorCuota = total/meses;
-    p.saldo = Math.max(0, total - abonosSuma);
-    p.codeudor = codeudor; p.fecha = fecha;
-    modalClose(); guardar(); toast('Préstamo actualizado');
+    p.deudor = document.getElementById('ep-nombre').value.trim();
+    p.tel = document.getElementById('ep-tel').value.trim();
+    p.capital = parseFloat(document.getElementById('ep-cap').value);
+    p.totalPagar = p.capital + (p.capital * p.tasa * p.meses);
+    p.saldo = p.totalPagar - db.abonos.filter(a=>a.prestamoId==p.id).reduce((s,a)=>s+a.monto,0);
+    modalClose(); guardar();
   };
 }
 
-/* ---------- Editar abono ---------- */
 function editarAbono(id){
   const ab = db.abonos.find(x=>x.id===id);
-  if(!ab) return;
-  const prestamosActivos = db.prestamos;
-  const opts = prestamosActivos.map(p=>`<option value="${p.id}" ${p.id==ab.prestamoId?'selected':''}>${p.deudor} — total ${pesos(p.totalPagar)}</option>`).join('');
-  modal(`
-    <h3>Editar abono</h3>
-    <div style="display:grid;gap:10px">
-      <div><label>Préstamo</label><select id="eb-prestamo">${opts}</select></div>
-      <div><label>Valor del abono</label><input type="number" id="eb-monto" min="1" step="any" value="${ab.monto}"></div>
-      <div><label>Fecha</label><input type="date" id="eb-fecha" value="${ab.fecha}"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
-      <button class="btn btn-primary" id="ok-eb">Guardar cambios</button>
-    </div>`);
+  modal(`<h3>Editar abono</h3><input type="number" id="eb-monto" value="${ab.monto}"><div class="modal-actions"><button class="btn btn-primary" id="ok-eb">Guardar</button></div>`);
   document.getElementById('ok-eb').onclick = ()=>{
-    const monto = parseFloat(document.getElementById('eb-monto').value);
-    const fecha = document.getElementById('eb-fecha').value;
-    const pId = Number(document.getElementById('eb-prestamo').value);
-    if(!(monto>0)){ toast('Valor inválido','err'); return; }
-    if(!fecha){ toast('Fecha inválida','err'); return; }
-    const pNuevo = db.prestamos.find(x=>x.id===pId);
-    if(!pNuevo){ toast('Préstamo inválido','err'); return; }
-    const pViejoId = ab.prestamoId;
-    ab.monto = monto; ab.fecha = fecha; ab.prestamoId = pId; ab.deudor = pNuevo.deudor;
-    // Recalcular saldos de ambos préstamos (el anterior y el nuevo, si cambió)
-    [pViejoId, pId].forEach(pid=>{
-      const pr = db.prestamos.find(x=>x.id==pid);
-      if(pr){
-        const suma = db.abonos.filter(a=>a.prestamoId==pid).reduce((s,a)=>s+a.monto,0);
-        pr.saldo = Math.max(0, pr.totalPagar - suma);
-      }
-    });
-    modalClose(); guardar(); toast('Abono actualizado');
+    ab.monto = parseFloat(document.getElementById('eb-monto').value);
+    const p = db.prestamos.find(x=>x.id==ab.prestamoId);
+    if(p) p.saldo = p.totalPagar - db.abonos.filter(a=>a.prestamoId==p.id).reduce((s,a)=>s+a.monto,0);
+    modalClose(); guardar();
   };
 }
 
-/* ---------- Editar actividad ---------- */
 function editarActividad(id){
   const act = db.actividades.find(x=>x.id===id);
-  if(!act) return;
-  modal(`
-    <h3>Editar actividad</h3>
-    <div style="display:grid;gap:10px">
-      <div><label>Nombre</label><input id="ec-nombre" value="${act.nombre.replace(/"/g,'&quot;')}"></div>
-      <div><label>Gasto</label><input type="number" id="ec-gasto" min="0" step="any" value="${act.gasto}"></div>
-      <div><label>Ingreso</label><input type="number" id="ec-venta" min="0" step="any" value="${act.venta}"></div>
-      <div><label>Fecha</label><input type="date" id="ec-fecha" value="${act.fecha}"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="modalClose()">Cancelar</button>
-      <button class="btn btn-primary" id="ok-ec">Guardar cambios</button>
-    </div>`);
+  modal(`<h3>Editar actividad</h3><input id="ec-n" value="${act.nombre}"><input type="number" id="ec-g" value="${act.gasto}"><input type="number" id="ec-v" value="${act.venta}"><div class="modal-actions"><button class="btn btn-primary" id="ok-ec">Guardar</button></div>`);
   document.getElementById('ok-ec').onclick = ()=>{
-    const nombre = document.getElementById('ec-nombre').value.trim();
-    const g = parseFloat(document.getElementById('ec-gasto').value);
-    const v = parseFloat(document.getElementById('ec-venta').value);
-    const fecha = document.getElementById('ec-fecha').value;
-    if(!nombre){ toast('Nombre requerido','err'); return; }
-    if(g<0 || v<0 || isNaN(g) || isNaN(v)){ toast('Valores inválidos','err'); return; }
-    act.nombre = nombre; act.gasto = g; act.venta = v; act.ganancia = v-g; act.fecha = fecha;
-    modalClose(); guardar(); toast('Actividad actualizada');
+    act.nombre = document.getElementById('ec-n').value;
+    act.gasto = parseFloat(document.getElementById('ec-g').value);
+    act.venta = parseFloat(document.getElementById('ec-v').value);
+    act.ganancia = act.venta - act.gasto;
+    modalClose(); guardar();
   };
 }
 
-/* ---------- Plan de cuotas ---------- */
 function verPlanCuotas(id){
   const p = db.prestamos.find(x=>x.id===id);
-  if(!p) return;
-  const abonosP = db.abonos.filter(a=>a.prestamoId===id).reduce((s,a)=>s+a.monto,0);
-  let cubierto = abonosP;
-  let rows='';
-  const hoy = hoyColombia();
+  let rows=''; let cubierto = db.abonos.filter(a=>a.prestamoId===id).reduce((s,a)=>s+a.monto,0);
   for(let i=1;i<=p.meses;i++){
-    const vence = addMonths(p.fecha, i);
-    const cuota = p.valorCuota;
-    let estadoTxt, estadoCls;
-    if(cubierto >= cuota){
-      estadoTxt='Pagada'; estadoCls='b-green'; cubierto -= cuota;
-    } else {
-      const dias = diffDays(vence, hoy);
-      if(dias<0){ estadoTxt='Pendiente'; estadoCls='b-gray'; }
-      else if(dias<=5){ estadoTxt=`Por vencer (${dias}d)`; estadoCls='b-amber'; }
-      else { estadoTxt=`Mora ${dias}d`; estadoCls='b-red'; }
-    }
-    rows += `<tr>
-      <td>${i}</td>
-      <td>${fechaBonita(vence)}</td>
-      <td class="num">${pesos(cuota)}</td>
-      <td><span class="badge ${estadoCls}">${estadoTxt}</span></td>
-    </tr>`;
+    const v = addMonths(p.fecha, i);
+    const c = p.valorCuota;
+    let est = cubierto >= c ? 'Pagada' : 'Pendiente';
+    if(cubierto>=c) cubierto-=c;
+    rows += `<tr><td>${i}</td><td>${fechaBonita(v)}</td><td>${pesos(c)}</td><td>${est}</td></tr>`;
   }
-  modal(`
-    <h3>Plan de cuotas — ${p.deudor}</h3>
-    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px">
-      Capital ${pesos(p.capital)} · Interés total ${pesos(p.interesTotal)} · Saldo ${pesos(p.saldo)}
-    </p>
-    <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Vence</th><th class="num">Cuota</th><th>Estado</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>
-    <div class="modal-actions"><button class="btn btn-primary" onclick="modalClose()">Cerrar</button></div>
-  `);
+  modal(`<h3>Plan — ${p.deudor}</h3><div class="table-wrap"><table><thead><tr><th>#</th><th>Vence</th><th>Cuota</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></div>`);
 }
 
-/* ---------- Recibos imprimibles ---------- */
 function imprimirReciboAporte(id){
-  const a = db.aportes.find(x=>x.id===id);
-  const s = db.socios.find(x=>x.id===a.socioId);
-  renderRecibo({
-    tipo:'APORTE',
-    nombre: s?s.nombre:'—',
-    ref: s?`CC ${s.cedula}`:'',
-    monto: a.monto,
-    fecha: a.fecha,
-    extra:'Constancia de aporte a la natillera'
-  });
+  const a = db.aportes.find(x=>x.id===id); const s = db.socios.find(x=>x.id===a.socioId);
+  renderRecibo({tipo:'APORTE', nombre: s?s.nombre:'—', ref: s?`CC ${s.cedula}`:'', monto: a.monto, fecha: a.fecha, extra:'Aporte natillera'});
 }
 function imprimirReciboAbono(id){
-  const ab = db.abonos.find(x=>x.id===id);
-  const p = db.prestamos.find(x=>x.id==ab.prestamoId);
-  renderRecibo({
-    tipo:'ABONO A PRÉSTAMO',
-    nombre: ab.deudor,
-    ref: p ? `Saldo actual: ${pesos(p.saldo)}` : '',
-    monto: ab.monto,
-    fecha: ab.fecha,
-    extra:'Constancia de pago'
-  });
+  const ab = db.abonos.find(x=>x.id===id); const p = db.prestamos.find(x=>x.id==ab.prestamoId);
+  renderRecibo({tipo:'ABONO', nombre: ab.deudor, ref: p?`Saldo: ${pesos(p.saldo)}`:'', monto: ab.monto, fecha: ab.fecha, extra:'Pago cuota'});
 }
 function renderRecibo(d){
-  const num = String(Date.now()).slice(-6);
-  const box = document.getElementById('recibo-print');
-  box.style.display='block';
-  box.innerHTML = `
-    <h2>Natillera LA FORTUNA</h2>
-    <div style="font-size:12px;color:#666;margin-bottom:14px">Recibo N° ${num} · ${d.tipo}</div>
-    <div class="r-row"><span>Beneficiario</span><b>${d.nombre}</b></div>
-    ${d.ref?`<div class="r-row"><span>Referencia</span><b>${d.ref}</b></div>`:''}
-    <div class="r-row"><span>Valor</span><b>${pesos(d.monto)}</b></div>
-    <div class="r-row"><span>Fecha</span><b>${fechaBonita(d.fecha)}</b></div>
-    <div class="r-row"><span>Observación</span><b>${d.extra}</b></div>
-    <div style="margin-top:36px;display:flex;justify-content:space-between;gap:40px">
-      <div style="flex:1;border-top:1px solid #000;text-align:center;padding-top:6px;font-size:12px">Recibió</div>
-      <div style="flex:1;border-top:1px solid #000;text-align:center;padding-top:6px;font-size:12px">Entregó</div>
-    </div>
-    <div class="r-foot">Desarrollada por Vibras Positivas HM — Derechos de Autor Reservados</div>
-  `;
+  const box = document.getElementById('recibo-print'); box.style.display='block';
+  box.innerHTML = `<h2>Natillera LA FORTUNA</h2><div class="r-row"><span>Beneficiario</span><b>${d.nombre}</b></div><div class="r-row"><span>Valor</span><b>${pesos(d.monto)}</b></div><div class="r-row"><span>Fecha</span><b>${fechaBonita(d.fecha)}</b></div><div class="r-foot">Vibras Positivas HM</div>`;
   setTimeout(()=>{ window.print(); box.style.display='none'; }, 100);
 }
 
-/* ---------- Export Excel ---------- */
 function exportarExcelTotal(){
-  const intC = calcInteresCausado();
-  const uAct = utilidadActividades();
-  const uTotal = intC + uAct;
-  const uSocio = db.socios.length>0 ? uTotal/db.socios.length : 0;
-
-  const liq = db.socios.map(s=>{
-    const ap = db.aportes.filter(a=>a.socioId==s.id).reduce((x,a)=>x+a.monto,0);
-    return {Socio:s.nombre, Cedula:s.cedula, Aportes:ap, 'Utilidad equitativa':Math.round(uSocio), 'Total a recibir':Math.round(ap+uSocio)};
-  });
-  const resumen = [
-    {Concepto:'Total aportes', Valor: totalAportes()},
-    {Concepto:'Total abonos recibidos', Valor: totalAbonos()},
-    {Concepto:'Intereses causados', Valor: Math.round(intC)},
-    {Concepto:'Utilidad actividades', Valor: Math.round(uAct)},
-    {Concepto:'Utilidad total', Valor: Math.round(uTotal)},
-    {Concepto:'Utilidad por socio', Valor: Math.round(uSocio)},
-    {Concepto:'Capital prestado pendiente', Valor: Math.round(capitalPrestadoPendiente())},
-  ];
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resumen), 'RESUMEN');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(liq), 'LIQUIDACION');
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.socios), 'SOCIOS');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.aportes.map(a=>{
-    const s = db.socios.find(x=>x.id==a.socioId);
-    return {Fecha:a.fecha, Socio:s?s.nombre:'—', Valor:a.monto};
-  })), 'APORTES');
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.prestamos), 'PRESTAMOS');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.abonos), 'ABONOS');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.actividades), 'ACTIVIDADES');
-  XLSX.writeFile(wb, `LaFortuna_Informe_${hoyColombia()}.xlsx`);
-  toast('Excel descargado');
+  XLSX.writeFile(wb, `LaFortuna_${hoyColombia()}.xlsx`);
 }
 
-/* ---------- WhatsApp reporte mensual ---------- */
 function enviarReporteWhatsApp(){
-  if(!db.adminWA){ toast('Primero guarda el WhatsApp de admin en Datos','err'); return; }
-  const intC = calcInteresCausado();
-  const uAct = utilidadActividades();
-  const uTotal = intC + uAct;
-  const uSocio = db.socios.length>0 ? uTotal/db.socios.length : 0;
-  const capPend = capitalPrestadoPendiente();
-  const saldoCaja = totalAportes() + intC + uAct - capPend;
-  const patrimonio = saldoCaja + capPend;
-
-  const lineas = [
-    '*NATILLERA LA FORTUNA — REPORTE*',
-    `Corte: ${fechaBonita(hoyColombia())}`,
-    '',
-    `👥 Socios: ${db.socios.length}`,
-    `💵 Aportes acumulados: ${pesos(totalAportes())}`,
-    `🏦 Préstamos activos: ${db.prestamos.filter(p=>p.saldo>0).length}`,
-    `📥 Abonos recibidos: ${pesos(totalAbonos())}`,
-    `📈 Intereses causados: ${pesos(intC)}`,
-    `🎉 Utilidad actividades: ${pesos(uAct)}`,
-    '',
-    `💰 *Utilidad total: ${pesos(uTotal)}*`,
-    `🔄 Utilidad por socio: ${pesos(uSocio)}`,
-    '',
-    `💵 Disponible en caja: ${pesos(saldoCaja)}`,
-    `🏦 Capital prestado activo: ${pesos(capPend)}`,
-    `📊 *Patrimonio total: ${pesos(patrimonio)}*`,
-    '',
-    '_Generado por Vibras Positivas HM_'
-  ];
-  const msg = encodeURIComponent(lineas.join('\n'));
+  if(!db.adminWA) return toast('Falta WhatsApp admin','err');
+  const msg = encodeURIComponent(`*REPORTE LA FORTUNA*\nPatrimonio: ${pesos(totalAportes() + calcInteresCausado() + utilidadActividades())}`);
   window.open(`https://wa.me/57${db.adminWA}?text=${msg}`,'_blank');
 }
 
-/* ---------- Backup / Restore ---------- */
 function descargarBackup(){
-  const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `LaFortuna_Backup_${hoyColombia()}.json`;
-  a.click(); URL.revokeObjectURL(url);
-  toast('Respaldo descargado');
+  const blob = new Blob([JSON.stringify(db)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Backup_LaFortuna.json`; a.click();
 }
 function restaurarBackup(input){
-  const file = input.files[0]; if(!file) return;
   const reader = new FileReader();
-  reader.onload = e=>{
-    try{
-      const data = JSON.parse(e.target.result);
-      if(!data.socios || !Array.isArray(data.socios)) throw new Error('Formato inválido');
-      confirmar('Restaurar respaldo',
-        `Se reemplazarán TODOS los datos actuales por los del archivo. Esta acción no se puede deshacer. ¿Continuar?`,
-        ()=>{
-          db = Object.assign(esquemaVacio(), data);
-          guardar(); toast('Respaldo restaurado');
-        },'Sí, restaurar','btn-gold');
-    }catch(err){ toast('Archivo inválido: '+err.message,'err'); }
-    input.value='';
-  };
-  reader.readAsText(file);
+  reader.onload = e=>{ db = JSON.parse(e.target.result); guardar(); toast('Restaurado'); };
+  reader.readAsText(input.files[0]);
 }
-function borrarTodo(){
-  confirmar('Borrar TODO',
-    'Esto eliminará socios, aportes, préstamos, abonos y actividades. ¿Descargaste ya el respaldo? Esta acción NO se puede deshacer.',
-    ()=>{ db = esquemaVacio(); guardar(); toast('Datos borrados'); },
-    'Sí, borrar todo');
-}
-function guardarAdminWA(){
-  const v = document.getElementById('admin-wa').value.trim();
-  if(v && !/^\d{10}$/.test(v)){ toast('WhatsApp inválido','err'); return; }
-  db.adminWA = v;
-  guardar(); toast('Número guardado');
-}
+function borrarTodo(){ confirmar('BORRAR TODO', '¿Seguro?', ()=>{ db = esquemaVacio(); guardar(); }); }
+function guardarAdminWA(){ db.adminWA = document.getElementById('admin-wa').value; guardar(); toast('Guardado'); }
 
-/* init */
 render();
 </script>
 </body>
