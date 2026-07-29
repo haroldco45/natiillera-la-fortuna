@@ -456,7 +456,7 @@
     <h2 class="title">Liquidación de fin de año</h2>
     <div class="toolbar">
       <button class="btn btn-gold" onclick="exportarExcelTotal()">📊 Exportar Excel completo</button>
-      <button class="btn btn-green" onclick="enviarReporteWhatsApp()">📱 Reporte mensual al admin</button>
+      <button class="btn btn-green" onclick="enviarReporteWhatsApp()">📱 Enviar liquidación al admin</button>
       <button class="btn btn-ghost" onclick="window.print()">🖨️ Imprimir liquidación</button>
     </div>
     <div class="card" style="background:#fbf7e8;border-color:#e9d8a0">
@@ -465,6 +465,18 @@
         Cada socio recibe sus aportes + una parte igual de la utilidad. Los préstamos pendientes no se reparten hasta ser recaudados.
       </p>
     </div>
+
+    <!-- RESUMEN GENERAL -->
+    <h3 style="font-family:'Fraunces',serif;font-size:18px;margin:18px 0 10px">📋 Resumen general de la natillera</h3>
+    <div class="table-wrap" style="margin-bottom:18px">
+      <table id="tabla-resumen-liq">
+        <thead><tr><th style="width:60%">Concepto</th><th class="num">Valor</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- REPARTO POR SOCIO -->
+    <h3 style="font-family:'Fraunces',serif;font-size:18px;margin:18px 0 10px">👥 Reparto detallado por socio</h3>
     <div class="table-wrap">
       <table id="tabla-liq">
         <thead><tr><th>Socio</th><th class="num">Aportes</th><th class="num">Utilidad equitativa</th><th class="num">Total a recibir</th></tr></thead>
@@ -478,9 +490,9 @@
     <h2 class="title">Respaldo y configuración</h2>
     <div class="card">
       <h3 style="margin:0 0 8px;font-family:'Fraunces',serif">WhatsApp de administración</h3>
-      <p style="margin:0 0 10px;font-size:13px;color:var(--ink-soft)">Número al que llegan los reportes mensuales y copias de los recibos.</p>
+      <p style="margin:0 0 10px;font-size:13px;color:var(--ink-soft)">Número al que llegan los reportes mensuales y copias de los recibos. Por defecto: <strong>322 939 1042</strong>.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input type="tel" id="admin-wa" style="flex:1;min-width:180px" pattern="[0-9]{10}" maxlength="10" placeholder="3001234567">
+        <input type="tel" id="admin-wa" style="flex:1;min-width:180px" pattern="[0-9]{10}" maxlength="10" placeholder="3229391042">
         <button class="btn btn-primary" onclick="guardarAdminWA()">Guardar</button>
       </div>
     </div>
@@ -533,11 +545,14 @@ function cargarDB(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return esquemaVacio();
     const parsed = JSON.parse(raw);
-    return Object.assign(esquemaVacio(), parsed);
+    const merged = Object.assign(esquemaVacio(), parsed);
+    // Si el admin quedó vacío por instalación previa, forzamos el número oficial
+    if(!merged.adminWA) merged.adminWA = '3229391042';
+    return merged;
   }catch(e){ return esquemaVacio(); }
 }
 function esquemaVacio(){
-  return { socios:[], aportes:[], prestamos:[], abonos:[], actividades:[], adminWA:'', version:12 };
+  return { socios:[], aportes:[], prestamos:[], abonos:[], actividades:[], adminWA:'3229391042', version:12 };
 }
 function guardar(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
@@ -896,17 +911,61 @@ function renderTablaActividades(){
 function renderLiquidacion(){
   const tb = document.querySelector('#tabla-liq tbody');
   const foot = document.getElementById('liq-foot');
-  if(!db.socios.length){ tb.innerHTML = `<tr><td colspan="4" class="empty">No hay socios</td></tr>`; return; }
-  const uTotal = calcInteresCausado() + utilidadActividades();
-  const uSocio = uTotal / db.socios.length;
+  const tbRes = document.querySelector('#tabla-resumen-liq tbody');
+
+  // Cálculos globales
+  const tAp = totalAportes();
+  const tAb = totalAbonos();
+  const intC = calcInteresCausado();
+  const uAct = utilidadActividades();
+  const uTotal = intC + uAct;
+  const capPend = capitalPrestadoPendiente();
+  const uSocio = db.socios.length>0 ? uTotal/db.socios.length : 0;
+
+  // 1) RESUMEN GENERAL (como el Excel de la foto)
+  const resumen = [
+    { concepto:'Total aportes',           valor: tAp,     bold:false, hl:false },
+    { concepto:'Total abonos recibidos',  valor: tAb,     bold:false, hl:false },
+    { concepto:'Intereses causados',      valor: intC,    bold:false, hl:false },
+    { concepto:'Utilidad actividades',    valor: uAct,    bold:false, hl:false },
+    { concepto:'Utilidad total',          valor: uTotal,  bold:true,  hl:false },
+    { concepto:'Utilidad por socio',      valor: uSocio,  bold:true,  hl:true  },
+    { concepto:'Capital prestado pendiente', valor: capPend, bold:false, hl:false }
+  ];
+  tbRes.innerHTML = resumen.map(r=>{
+    const style = r.hl
+      ? 'background:#fff59d;font-weight:800'
+      : (r.bold ? 'font-weight:700' : '');
+    return `<tr style="${style}">
+      <td>${r.concepto}</td>
+      <td class="num">${pesos(r.valor)}</td>
+    </tr>`;
+  }).join('');
+
+  // 2) REPARTO POR SOCIO
+  if(!db.socios.length){
+    tb.innerHTML = `<tr><td colspan="4" class="empty">Registra socios para ver el reparto</td></tr>`;
+    foot.innerHTML = '';
+    return;
+  }
   let sAp=0, sU=0, sT=0;
   tb.innerHTML = db.socios.map(s=>{
     const ap = db.aportes.filter(a=>a.socioId==s.id).reduce((x,a)=>x+a.monto,0);
     const tot = ap + uSocio;
     sAp+=ap; sU+=uSocio; sT+=tot;
-    return `<tr><td>${s.nombre}</td><td class="num">${pesos(ap)}</td><td class="num">${pesos(uSocio)}</td><td class="num"><strong>${pesos(tot)}</strong></td></tr>`;
+    return `<tr>
+      <td>${s.nombre}</td>
+      <td class="num">${pesos(ap)}</td>
+      <td class="num">${pesos(uSocio)}</td>
+      <td class="num"><strong>${pesos(tot)}</strong></td>
+    </tr>`;
   }).join('');
-  foot.innerHTML = `<tr style="background:#fbf7e8;font-weight:800"><td>TOTAL</td><td class="num">${pesos(sAp)}</td><td class="num">${pesos(sU)}</td><td class="num">${pesos(sT)}</td></tr>`;
+  foot.innerHTML = `<tr style="background:#fbf7e8;font-weight:800">
+    <td>TOTAL (${db.socios.length} socios)</td>
+    <td class="num">${pesos(sAp)}</td>
+    <td class="num">${pesos(sU)}</td>
+    <td class="num">${pesos(sT)}</td>
+  </tr>`;
 }
 
 /* ---------- EDICIÓN / ELIMINACIÓN (Mantener igual) ---------- */
@@ -1024,7 +1083,38 @@ function exportarExcelTotal(){
 
 function enviarReporteWhatsApp(){
   if(!db.adminWA) return toast('Falta WhatsApp admin','err');
-  const msg = encodeURIComponent(`*REPORTE LA FORTUNA*\nPatrimonio: ${pesos(totalAportes() + calcInteresCausado() + utilidadActividades())}`);
+  const tAp = totalAportes();
+  const tAb = totalAbonos();
+  const intC = calcInteresCausado();
+  const uAct = utilidadActividades();
+  const uTotal = intC + uAct;
+  const capPend = capitalPrestadoPendiente();
+  const uSocio = db.socios.length>0 ? uTotal/db.socios.length : 0;
+  const saldoCaja = tAp + intC + uAct - capPend;
+
+  const lineas = [
+    '*NATILLERA LA FORTUNA*',
+    '*LIQUIDACIÓN GENERAL*',
+    `Corte: ${fechaBonita(hoyColombia())}`,
+    '',
+    `👥 Socios: ${db.socios.length}`,
+    `🏦 Préstamos activos: ${db.prestamos.filter(p=>p.saldo>0).length}`,
+    '',
+    '📋 *RESUMEN*',
+    `• Total aportes: ${pesos(tAp)}`,
+    `• Total abonos recibidos: ${pesos(tAb)}`,
+    `• Intereses causados: ${pesos(intC)}`,
+    `• Utilidad actividades: ${pesos(uAct)}`,
+    `• *Utilidad total: ${pesos(uTotal)}*`,
+    `• 🌟 *Utilidad por socio: ${pesos(uSocio)}*`,
+    `• Capital prestado pendiente: ${pesos(capPend)}`,
+    '',
+    `💵 Disponible en caja: ${pesos(saldoCaja)}`,
+    `📊 Patrimonio total: ${pesos(saldoCaja + capPend)}`,
+    '',
+    '_Generado por Vibras Positivas HM_'
+  ];
+  const msg = encodeURIComponent(lineas.join('\n'));
   window.open(`https://wa.me/57${db.adminWA}?text=${msg}`,'_blank');
 }
 
