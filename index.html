@@ -477,9 +477,12 @@
 
     <!-- REPARTO POR SOCIO -->
     <h3 style="font-family:'Fraunces',serif;font-size:18px;margin:18px 0 10px">👥 Reparto detallado por socio</h3>
+    <div class="card" style="background:#e8f3ec;border-color:#b5d6bd;font-size:13px;margin-bottom:12px">
+      💡 <strong>Envío individual:</strong> Puedes enviar por WhatsApp a cada socio su liquidación personal completa (aportes, préstamos, abonos, utilidad e total a recibir) con el botón <strong>📲 Enviar</strong> en cada fila.
+    </div>
     <div class="table-wrap">
       <table id="tabla-liq">
-        <thead><tr><th>Socio</th><th class="num">Aportes</th><th class="num">Utilidad equitativa</th><th class="num">Total a recibir</th></tr></thead>
+        <thead><tr><th>Socio</th><th class="num">Aportes</th><th class="num">Utilidad equitativa</th><th class="num">Total a recibir</th><th></th></tr></thead>
         <tbody></tbody>
         <tfoot id="liq-foot"></tfoot>
       </table>
@@ -944,7 +947,7 @@ function renderLiquidacion(){
 
   // 2) REPARTO POR SOCIO
   if(!db.socios.length){
-    tb.innerHTML = `<tr><td colspan="4" class="empty">Registra socios para ver el reparto</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="5" class="empty">Registra socios para ver el reparto</td></tr>`;
     foot.innerHTML = '';
     return;
   }
@@ -954,10 +957,13 @@ function renderLiquidacion(){
     const tot = ap + uSocio;
     sAp+=ap; sU+=uSocio; sT+=tot;
     return `<tr>
-      <td>${s.nombre}</td>
+      <td><strong>${s.nombre}</strong><br><span style="font-size:11px;color:var(--ink-soft)">CC ${s.cedula} · ${s.tel||'sin WA'}</span></td>
       <td class="num">${pesos(ap)}</td>
       <td class="num">${pesos(uSocio)}</td>
       <td class="num"><strong>${pesos(tot)}</strong></td>
+      <td class="actions">
+        <button class="btn btn-wa btn-mini" onclick="enviarLiquidacionIndividual(${s.id})" title="Enviar liquidación por WhatsApp">📲 Enviar</button>
+      </td>
     </tr>`;
   }).join('');
   foot.innerHTML = `<tr style="background:#fbf7e8;font-weight:800">
@@ -965,7 +971,97 @@ function renderLiquidacion(){
     <td class="num">${pesos(sAp)}</td>
     <td class="num">${pesos(sU)}</td>
     <td class="num">${pesos(sT)}</td>
+    <td></td>
   </tr>`;
+}
+
+/* ---------- LIQUIDACIÓN INDIVIDUAL POR SOCIO ---------- */
+function enviarLiquidacionIndividual(socioId){
+  const s = db.socios.find(x=>x.id===socioId);
+  if(!s){ toast('Socio no encontrado','err'); return; }
+  if(!s.tel){ toast('Este socio no tiene WhatsApp registrado','err'); return; }
+
+  // Datos globales
+  const intC = calcInteresCausado();
+  const uAct = utilidadActividades();
+  const uTotal = intC + uAct;
+  const uSocio = db.socios.length>0 ? uTotal/db.socios.length : 0;
+
+  // Datos del socio
+  const misAportes = db.aportes.filter(a=>a.socioId==socioId)
+    .sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const totalAp = misAportes.reduce((s,a)=>s+a.monto,0);
+
+  // Préstamos del socio (si es deudor por nombre/tel/cédula)
+  const misPrestamos = db.prestamos.filter(p=>
+    (p.tel && p.tel===s.tel) ||
+    (p.deudor && p.deudor.toLowerCase().trim() === s.nombre.toLowerCase().trim())
+  );
+
+  // Líneas del mensaje
+  const lineas = [
+    '*NATILLERA LA FORTUNA*',
+    '*LIQUIDACIÓN INDIVIDUAL*',
+    `Corte: ${fechaBonita(hoyColombia())}`,
+    '',
+    `👤 Socio: *${s.nombre}*`,
+    `🪪 CC: ${s.cedula}`,
+    ''
+  ];
+
+  // Sección aportes
+  lineas.push('💵 *APORTES REALIZADOS*');
+  if(misAportes.length){
+    misAportes.forEach((a,i)=>{
+      lineas.push(`${i+1}. ${fechaBonita(a.fecha)} — ${pesos(a.monto)}`);
+    });
+    lineas.push(`   ➤ Total aportes: *${pesos(totalAp)}*`);
+  } else {
+    lineas.push('Sin aportes registrados.');
+  }
+  lineas.push('');
+
+  // Sección préstamos (si tiene)
+  if(misPrestamos.length){
+    lineas.push('🏦 *PRÉSTAMOS RECIBIDOS*');
+    misPrestamos.forEach((p,i)=>{
+      const abonos = db.abonos.filter(a=>a.prestamoId==p.id);
+      const totalAbonos = abonos.reduce((x,a)=>x+a.monto,0);
+      lineas.push(`${i+1}. ${fechaBonita(p.fecha)} — Capital ${pesos(p.capital)}`);
+      lineas.push(`   Total a pagar: ${pesos(p.totalPagar)}`);
+      lineas.push(`   Abonado: ${pesos(totalAbonos)}`);
+      lineas.push(`   Saldo pendiente: *${pesos(p.saldo)}*`);
+    });
+    lineas.push('');
+  }
+
+  // Sección utilidad
+  lineas.push('📊 *REPARTO DE UTILIDADES*');
+  lineas.push(`Utilidad total del grupo: ${pesos(uTotal)}`);
+  lineas.push(`Utilidad por socio (${db.socios.length} socios): ${pesos(uSocio)}`);
+  lineas.push('');
+
+  // Total a recibir
+  const totalRecibir = totalAp + uSocio;
+  lineas.push('💰 *TOTAL A RECIBIR EN LIQUIDACIÓN*');
+  lineas.push(`Aportes: ${pesos(totalAp)}`);
+  lineas.push(`+ Utilidad equitativa: ${pesos(uSocio)}`);
+  lineas.push(`= *${pesos(totalRecibir)}*`);
+
+  // Advertencia si tiene saldo pendiente
+  const saldoPend = misPrestamos.reduce((x,p)=>x+p.saldo,0);
+  if(saldoPend > 0){
+    lineas.push('');
+    lineas.push(`⚠️ _Tienes saldo pendiente de préstamos por ${pesos(saldoPend)}, este valor se descontará al momento de la entrega._`);
+    lineas.push(`Total neto a recibir: *${pesos(totalRecibir - saldoPend)}*`);
+  }
+
+  lineas.push('');
+  lineas.push('_Generado por Vibras Positivas HM_');
+
+  const msg = encodeURIComponent(lineas.join('\n'));
+  window.open(`https://wa.me/57${s.tel}?text=${msg}`,'_blank');
+  toast(`Liquidación enviada a ${s.nombre}`);
 }
 
 /* ---------- EDICIÓN / ELIMINACIÓN (Mantener igual) ---------- */
@@ -1076,9 +1172,151 @@ function renderRecibo(d){
 
 function exportarExcelTotal(){
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.socios), 'SOCIOS');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.prestamos), 'PRESTAMOS');
-  XLSX.writeFile(wb, `LaFortuna_${hoyColombia()}.xlsx`);
+
+  // Cálculos globales
+  const tAp = totalAportes();
+  const tAb = totalAbonos();
+  const intC = calcInteresCausado();
+  const uAct = utilidadActividades();
+  const uTotal = intC + uAct;
+  const capPend = capitalPrestadoPendiente();
+  const uSocio = db.socios.length>0 ? uTotal/db.socios.length : 0;
+
+  // === HOJA 1: RESUMEN ===
+  const resumen = [
+    { 'Concepto': 'Total aportes',              'Valor': tAp },
+    { 'Concepto': 'Total abonos recibidos',     'Valor': tAb },
+    { 'Concepto': 'Intereses causados',         'Valor': intC },
+    { 'Concepto': 'Utilidad actividades',       'Valor': uAct },
+    { 'Concepto': 'Utilidad total',             'Valor': uTotal },
+    { 'Concepto': 'Utilidad por socio',         'Valor': uSocio },
+    { 'Concepto': 'Capital prestado pendiente', 'Valor': capPend },
+    { 'Concepto': 'Número de socios',           'Valor': db.socios.length },
+    { 'Concepto': 'Préstamos activos',          'Valor': db.prestamos.filter(p=>p.saldo>0).length },
+    { 'Concepto': 'Fecha de corte',             'Valor': hoyColombia() }
+  ];
+  const wsResumen = XLSX.utils.json_to_sheet(resumen);
+  wsResumen['!cols'] = [{wch:32},{wch:18}];
+  XLSX.utils.book_append_sheet(wb, wsResumen, 'RESUMEN');
+
+  // === HOJA 2: LIQUIDACIÓN por socio (una fila por socio) ===
+  const liq = db.socios.map(s=>{
+    const misAp = db.aportes.filter(a=>a.socioId==s.id);
+    const totalAp = misAp.reduce((x,a)=>x+a.monto,0);
+    const misPrestamos = db.prestamos.filter(p=>
+      (p.tel && p.tel===s.tel) ||
+      (p.deudor && p.deudor.toLowerCase().trim() === s.nombre.toLowerCase().trim())
+    );
+    const saldoPend = misPrestamos.reduce((x,p)=>x+p.saldo,0);
+    return {
+      'Socio': s.nombre,
+      'Cédula': s.cedula,
+      'WhatsApp': s.tel || '',
+      'N° Aportes': misAp.length,
+      'Total aportes': totalAp,
+      'Utilidad equitativa': Math.round(uSocio),
+      'Subtotal a recibir': Math.round(totalAp + uSocio),
+      'Saldo préstamos pendientes': saldoPend,
+      'TOTAL NETO A RECIBIR': Math.round(totalAp + uSocio - saldoPend)
+    };
+  });
+  const wsLiq = XLSX.utils.json_to_sheet(liq);
+  wsLiq['!cols'] = [{wch:28},{wch:14},{wch:14},{wch:12},{wch:16},{wch:18},{wch:18},{wch:22},{wch:22}];
+  XLSX.utils.book_append_sheet(wb, wsLiq, 'LIQUIDACION');
+
+  // === HOJA 3: APORTES DETALLADOS (fila por fila con socio) ===
+  const aportesDet = db.aportes.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(a=>{
+    const s = db.socios.find(x=>x.id==a.socioId);
+    return {
+      'Fecha': a.fecha,
+      'Socio': s ? s.nombre : '—',
+      'Cédula': s ? s.cedula : '',
+      'Valor': a.monto
+    };
+  });
+  const wsAportes = XLSX.utils.json_to_sheet(aportesDet);
+  wsAportes['!cols'] = [{wch:12},{wch:28},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, wsAportes, 'APORTES');
+
+  // === HOJA 4: APORTES POR SOCIO (una sección por socio con todos sus aportes) ===
+  const aportesPorSocio = [];
+  db.socios.forEach(s=>{
+    aportesPorSocio.push({ 'Concepto': `--- ${s.nombre} (CC ${s.cedula}) ---`, 'Fecha': '', 'Valor': '' });
+    const misAp = db.aportes.filter(a=>a.socioId==s.id).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    let sub = 0;
+    misAp.forEach((a,i)=>{
+      aportesPorSocio.push({ 'Concepto': `Aporte ${i+1}`, 'Fecha': a.fecha, 'Valor': a.monto });
+      sub += a.monto;
+    });
+    aportesPorSocio.push({ 'Concepto': 'Subtotal', 'Fecha': '', 'Valor': sub });
+    aportesPorSocio.push({ 'Concepto': '', 'Fecha': '', 'Valor': '' });
+  });
+  const wsAporteSocio = XLSX.utils.json_to_sheet(aportesPorSocio);
+  wsAporteSocio['!cols'] = [{wch:38},{wch:12},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, wsAporteSocio, 'APORTES_POR_SOCIO');
+
+  // === HOJA 5: SOCIOS ===
+  const socios = db.socios.map(s=>({
+    'Nombre': s.nombre,
+    'Cédula': s.cedula,
+    'WhatsApp': s.tel,
+    'Total aportado': db.aportes.filter(a=>a.socioId==s.id).reduce((x,a)=>x+a.monto,0)
+  }));
+  const wsSocios = XLSX.utils.json_to_sheet(socios);
+  wsSocios['!cols'] = [{wch:28},{wch:14},{wch:14},{wch:16}];
+  XLSX.utils.book_append_sheet(wb, wsSocios, 'SOCIOS');
+
+  // === HOJA 6: PRÉSTAMOS ===
+  const prestamos = db.prestamos.map(p=>{
+    const abonos = db.abonos.filter(a=>a.prestamoId==p.id);
+    return {
+      'Deudor': p.deudor,
+      'WhatsApp': p.tel || '',
+      'Tipo': p.tipo,
+      'Capital': p.capital,
+      'Tasa mensual': p.tasa,
+      'Meses': p.meses,
+      'Interés total': p.interesTotal,
+      'Total a pagar': p.totalPagar,
+      'Valor cuota': p.valorCuota,
+      'Abonado': abonos.reduce((x,a)=>x+a.monto,0),
+      'Saldo': p.saldo,
+      'Fecha': p.fecha,
+      'Codeudor': p.codeudor || ''
+    };
+  });
+  const wsPrestamos = XLSX.utils.json_to_sheet(prestamos);
+  wsPrestamos['!cols'] = [{wch:28},{wch:14},{wch:10},{wch:14},{wch:12},{wch:8},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:12},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, wsPrestamos, 'PRESTAMOS');
+
+  // === HOJA 7: ABONOS ===
+  const abonos = db.abonos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(ab=>{
+    const p = db.prestamos.find(x=>x.id==ab.prestamoId);
+    return {
+      'Fecha': ab.fecha,
+      'Deudor': ab.deudor,
+      'Valor abono': ab.monto,
+      'Saldo tras abono': p ? p.saldo : ''
+    };
+  });
+  const wsAbonos = XLSX.utils.json_to_sheet(abonos);
+  wsAbonos['!cols'] = [{wch:12},{wch:28},{wch:14},{wch:16}];
+  XLSX.utils.book_append_sheet(wb, wsAbonos, 'ABONOS');
+
+  // === HOJA 8: ACTIVIDADES ===
+  const acts = db.actividades.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(a=>({
+    'Fecha': a.fecha,
+    'Actividad': a.nombre,
+    'Gasto': a.gasto,
+    'Ingreso': a.venta,
+    'Utilidad': a.ganancia
+  }));
+  const wsActs = XLSX.utils.json_to_sheet(acts);
+  wsActs['!cols'] = [{wch:12},{wch:32},{wch:14},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, wsActs, 'ACTIVIDADES');
+
+  XLSX.writeFile(wb, `LaFortuna_Liquidacion_${hoyColombia()}.xlsx`);
+  toast('Excel de liquidación descargado');
 }
 
 function enviarReporteWhatsApp(){
